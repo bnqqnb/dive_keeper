@@ -1,0 +1,84 @@
+<div data-role="page" id="dive_list"  data-theme="a">
+    <style>
+        @media screen and (min-width: 451px) {
+        }
+        @media screen and (max-width: 450px) {
+            .dive_list_aside_location{
+                margin-left:-30px !important;
+            }
+            
+            .dive_list_aside_time{
+                font-size: 14px !important;
+                margin-top:5px !important;
+            }
+        }
+    </style>
+
+
+    <script>
+        $("#dive_list").off("pageshow").on("pageshow", function(event) {
+
+            //Important need off here or may fire event multiple times.
+            $.mobile.pageContainer.pagecontainer("load", "./dive_detail.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./dive_form.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./about.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./home.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./profile.html", {});
+
+            window.return_arr['about'] = 'dive_list';
+
+
+            $('#dive_list_avatar').attr('src', 'http://divekeeper.com.tw/member_pic/' + window.user_data.member_id + '.png');
+
+
+            $.each(window.dive_data, function(index, value) {
+                var img_str = "<img style='width:58px;height:58px' src= './img/shore.png'></img>";
+                if (value.mode === "BOAT") {
+                    img_str = "<img style='width:58px;height:58px' src= './img/boat.png'></img>";
+                }
+//                var location_str = "<h2>" + value.dive_id + "</h2>";
+                var location_str = "<h2 class='dive_list_aside_location'>" + value.location + "</h2>";
+                var time_str = "<h2 class='dive_list_aside_time ui-li-aside'>" + value.time + "</h2>";
+                $('#dive_list_listview').append("<li><a href='#' class='dive_list_listview_a' id='" + index + "'>" + img_str + location_str + time_str + "</a></li>");
+
+                if (index === window.dive_data.length - 1) {
+                    $('.dive_list_listview_a').off('click').on('click', function(event, ui) {
+                        window.return_arr['dive_detail'] = 'dive_list';
+                        window.dive_detail_index = event.currentTarget.id;
+                        $(":mobile-pagecontainer").pagecontainer("change", "dive_detail.html", {role: "page", transition: "slide"});
+                        log("CLICK DIVE LIST");
+                        return false;
+                    });
+
+                    $('#dive_list_listview').listview('refresh');
+                }
+            });
+
+            i18n(dive_lang, window.user_data.language);
+        });
+    </script>
+
+    <div data-role="header">
+        <a class="back" href="#home" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class="dive_list">潛水清單</h1>
+        <a href="#about" data-transition="slide" class="ui-btn ui-icon-bullets ui-btn-icon-notext ui-corner-all">No text</a>
+    </div>
+
+    <div data-role="main">
+        <!--        
+                <div id="dive_list_nav">
+                    <div style="margin-top:10px;float:left;width:10%;margin-left:auto;margin-right:auto;margin-left:10px"><img style="width:42px;height:42px;margin-left:auto;margin-right:auto" alt="avatar" id="dive_list_avatar" src="./img/avatar.png"></div>
+                    <div class="ui-grid-b" style="float:left;width:86%">
+                        <div class="ui-block-a"><a href="#" data-role="button" data-transition="slide">潛水日誌</a></div>
+                        <div class="ui-block-b"><a href="#dive_form" data-role="button" data-transition="slide">新增日誌</a></div>
+                        <div class="ui-block-c"><a href="#profile" data-role="button" data-transition="slide">帳號管理</a></div>
+                    </div>
+                </div>-->
+
+
+        <div>
+            <ul id="dive_list_listview" data-role="listview" data-inset="true">
+            </ul>
+        </div>
+    </div>
+</div>

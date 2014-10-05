@@ -1,0 +1,20 @@
+<div data-role="page" id="map"  data-theme="a">
+    <script>
+        $("#map").off("pageshow").on("pageshow", function(event) {
+            //Important need off here or may fire event multiple times.
+            $.mobile.pageContainer.pagecontainer("load", "./dive_detail.html", {});
+
+
+        });
+    </script>
+
+    <div data-role="header">
+        <a href="#dive_detail" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1>地圖</h1>
+    </div>
+
+    <div data-role="main">
+        所有地點 PIN<br >
+        單一地點 PIN<br >
+    </div>
+</div>

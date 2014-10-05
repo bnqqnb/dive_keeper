@@ -1,0 +1,84 @@
+<div data-role="page" id="upload_gallery"  data-theme="a">
+    <script>
+        $("#upload_gallery").off("pageshow").on("pageshow", function(event) {
+            //Important need off here or may fire event multiple times.
+            $.mobile.pageContainer.pagecontainer("load", "./index.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./dive_gallery.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./dive_detail.html", {});
+
+            i18n(dive_lang, window.user_data.language);
+            var ft = new FileTransfer();
+
+
+            window.imagePicker.getPictures(
+                    function(results) {
+                        window.uploading_remain = results.length;
+                        for (var i = 0; i < results.length; i++) {
+                            console.log('Image URI: ' + results[i]);
+//                                win(results[i]);
+
+                            var options = new FileUploadOptions();
+                            options.fileKey = "file";
+                            options.fileName = results[i].substr(results[i].lastIndexOf('/') + 1);
+                            options.mimeType = "image/jpeg";
+//                            options.mimeType = "text/plain";
+
+                            var params = {};
+                            params.account = window.user_data.account;
+                            params.did = window.dive_detail_data.dive_id;
+//                            params.pic = "param";
+                            options.params = params;
+                            options.headers = {
+                                Connection: "close"
+                            };
+                            options.chunkedMode = false;
+
+                            var win = function(r) {
+                                console.log("Code = " + r.responseCode);
+                                console.log("Response = " + r.response);
+                                console.log("Sent = " + r.bytesSent);
+
+                                uploading_remain -= 1;
+                                if (uploading_remain === 0) {
+                                    alert("上傳完成");
+                                    $(":mobile-pagecontainer").pagecontainer("change", "dive_gallery.html", {role: "page", transition: "slide", reverse: true});
+                                }
+                            };
+
+                            var fail = function(error) {
+                                alert("An error has occurred: Code = " + error.code);
+                            };
+
+
+                            log(results[i]);
+
+                            ft.upload(results[i], window.api_url + window.upload_gallery_api, win, fail, options);
+//                            ft.upload(results[i], window.api_url + window.upload_gallery_another_api, win, fail, options);
+//                            ft.upload(results[i], 'http://yourdomain.com/upload.php', win, fail, options);
+
+                            //upload img to server
+//                            $.post(window.api_url + window.upload_gallery_api, {account: window.user_data.account, did: window.dive_detail_data.dive_id, avatar: imageData}, function(data) {
+//                                log("RESULT = " + data);
+////                                window.alert("UPLOAD SUCCESS");
+//                            });
+
+                            if (index === results.length - 1) {
+                                $(":mobile-pagecontainer").pagecontainer("change", "dive_detail.html", {role: "page", transition: "slide", reverse: true});
+                            }
+                        }
+                    }, function(error) {
+                console.log('Error: ' + error);
+            }, {quality: 50});
+        });
+    </script>
+
+    <div data-role="header">
+        <a class="back" href="#dive_gallery" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class="upload_gallery">Upload Pic</h1>
+    </div>
+
+    <div data-role="main">
+        Upload Pic
+    </div>
+
+</div>

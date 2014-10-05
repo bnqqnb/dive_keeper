@@ -1,0 +1,91 @@
+<div data-role="page" id="login"  data-theme="a">
+    <script>
+
+        user_login = function($account, $password) {
+            $.ajax({
+                url: window.api_url + window.login_api,
+                crossDomain: true,
+                data: {account: $account, password: $password},
+                dataType: "json",
+                type: 'POST',
+                success: function(data) {
+                    console.log("LOGIN");
+//                    window.ccc = data;
+                    if (data.sys_code === "200") {
+                        console.log("登入成功");
+//                        $.mobile.changePage( "index.html", { transition: "slideup"} );
+                        window.user_data = data.data;
+                        localStorage.setItem("user_data",json_obj_to_db(window.user_data));
+                        $(":mobile-pagecontainer").pagecontainer("change", "index.html", {role: "page", transition: "slide", reverse: true});
+                    } else {
+                        console.log("登入失敗");
+                        alert("登入失敗");
+                    }
+                }
+            });
+            
+        };
+
+        //一進入登入頁面就抓 user account  清除 password 清除 user_privilege
+        //所以 user 一登出就是回到這一頁.
+//        $("#login").off("pageshow").on("pageshow", function(event) {
+        page_off_on("#login",function(){
+            $.mobile.pageContainer.pagecontainer("load", "./register.html", {});
+//            i18n(login_lang,window.user_data.language);
+            
+            if (localStorage.getItem('account')) {
+                $('#account').val(localStorage.getItem('account').replace(/"/g, ""));
+            }
+            $('#password').val('');
+            delete window.user_privilege;
+
+//            $('#login-form').off('submit').on('submit', function(event) {  //BAD
+            $('#login_go_login').off('click').on('click', function(event) {
+                if (!$('#account').val()) {
+                    alert("請填寫帳號");
+                    return false;
+                }
+
+                if (!$('#password').val()) {
+                    alert("請填寫密碼");
+                    return false;
+                }
+
+                //登入
+                user_login($('#account').val(), $('#password').val());
+                return false;
+            });
+            
+            
+//            $('#login_go_register').off('click').on('click',function(event){
+//               $(":mobile-pagecontainer").pagecontainer("change", "register.html", {role: "page", transition: "slide"}); 
+//            });
+            
+        });
+    </script>
+
+    <div data-role="header">
+        <a class='back' href="#index" data-role="button" data-transition="slide" data-direction="reverse">上一頁</a>
+        <h1 class='login'>登入</h1>
+        <a href="#about" class="ui-btn ui-icon-bullets ui-btn-icon-notext ui-corner-all">No text</a>
+    </div>
+
+    <div data-role="main"  class="ui-content">
+        <!--<h1 class='input_account_password'>請輸入帳號密碼</h1>-->
+        <form id="login-form">
+            <div class="ui-field-contain">
+                <label class='account' for="account">帳號</label>
+                <input type="text" id="account" name="account">
+            </div>
+            <div class="ui-field-contain">
+                <label class='password' for="password">密碼</label>
+                <input type="password" id="password" name="password">
+            </div>
+            <input  type="submit" id="login_go_login" class="ui-btn ui-btn-inline" value="登入">
+            <input  type="reset" class="ui-btn ui-btn-inline" value="取消">
+        </form>
+        <!--<a href="#home" class="ui-btn" data-transition="slide">首頁 (test)</a>-->
+        <a href="#register" id='login_go_register' class="ui-btn"  data-transition="slide">會員註冊</a>
+<!--        <a href="#register" id='login_go_register' class="ui-btn" data-transition="slide">Register</a>-->
+    </div>
+</div>

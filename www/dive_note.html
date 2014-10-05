@@ -1,0 +1,28 @@
+<div data-role="page" id="dive_note"  data-theme="a">
+    <script>
+        $("#dive_note").off("pageshow").on("pageshow", function(event) {
+            //Important need off here or may fire event multiple times.
+            $.mobile.pageContainer.pagecontainer("load", "./dive_detail.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./dive_note_update.html", {});
+
+            window.return_arr['about'] = 'dive_note';
+
+            $('#dive_note_p').html((window.dive_data[window.dive_detail_index].note === null)? (""):(window.dive_data[window.dive_detail_index].note));
+
+            i18n(dive_lang,window.user_data.language);
+        });
+    </script>
+
+    <div data-role="header">
+        <a class="back" href="#dive_detail" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class="note">筆記</h1>
+    </div>
+
+    <div data-role="main">
+        <p id="dive_note_p"></p>
+    </div>
+
+    <div data-role="footer" data-position="fixed"  data-tap-toggle="false">
+        <a class="update_note" style="width:96%" href="#dive_note_update" data-role="button" data-transition="slide" >修改</a>
+    </div>
+</div>

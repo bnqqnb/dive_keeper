@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<div data-role="page" id="profile"  data-theme="a">
+    <script>
+        $("#profile").off("pageshow").on("pageshow", function(event) {
+            //Important need off here or may fire event multiple times.
+            $.mobile.pageContainer.pagecontainer("load", "./index.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./home.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./profile_update.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./repasswd.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./upload_avatar.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./upload_liscense.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./about.html", {});
+            window.return_arr['about'] = 'profile';
+
+            $('#logout').off('click').on('click', function() {
+                delete window.user_data;
+                delete window.markers;
+                delete window.dive_data;
+                localStorage.removeItem('user_data');
+                $(":mobile-pagecontainer").pagecontainer("change", "index.html", {role: "page", transition: "slide", reverse: true});
+            });
+
+            //Set Profile
+            $('#profile_account').text(window.user_data.account);
+            $('#profile_nickname').text((window.user_data.nickname == null) ? ("") : (window.user_data.nickname));
+            $('#profile_firstname').text((window.user_data.first_name == null) ? ("") : (window.user_data.first_name));
+            $('#profile_lastname').text((window.user_data.last_name == null) ? ("") : (window.user_data.last_name));
+            $('#profile_phone').text(window.user_data.phone);
+            $('#profile_email').text(window.user_data.email);
+            $('#profile_liscense_type').text((window.user_data.liscense_type == null) ? ("") : (window.user_data.liscense_type));
+            $('#profile_liscense_number').text((window.user_data.liscense_number == null) ? ("") : (window.user_data.liscense_number));
+
+
+//            $.get('http://divekeeper.com.tw/member_pic/' + window.user_data.member_id + '.png')
+//                    .done(function() {
+//                        $('#profile_avatar_img').attr('src', 'http://divekeeper.com.tw/member_pic/' + window.user_data.member_id + '.png');
+//                    }).fail(function() {
+//                        $('#profile_avatar_img').attr('src', './img/avatar.png');
+//
+//            });
+
+//            $.get('http://divekeeper.com.tw/liscense_pic/' + window.user_data.member_id + '.png')
+//                    .done(function() {
+//                        $('#profile_liscense_img').attr('src', 'http://divekeeper.com.tw/liscense_pic/' + window.user_data.member_id + '.png');
+//                    }).fail(function() {
+//                        $('#profile_liscense_img').attr('src', './img/liscense.png');
+//            });
+
+            var now = (new Date);
+            $('#profile_avatar_img').attr('src', 'http://divekeeper.com.tw/member_pic/' + window.user_data.member_id + '.png?t=' + now);
+            $('#profile_avatar_img').attr('onError', "this.onerror=null;this.src='./img/avatar.png';");
+            $('#profile_liscense_img').attr('src', 'http://divekeeper.com.tw/liscense_pic/' + window.user_data.member_id + '.png?t=' + now);
+            $('#profile_liscense_img').attr('onError', "this.onerror=null;this.src='./img/liscense.png';");
+            i18n(profile_lang, window.user_data.language);
+        });
+    </script>
+
+    <div data-role="header">
+        <a class='back' href="#home" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class='profile'>Profile</h1>
+        <a href="#about" data-transition="slide" class="ui-btn ui-icon-bullets ui-btn-icon-notext ui-corner-all">No text</a>
+    </div>
+
+    <div data-role="main">
+        <style>
+            .ui-table-columntoggle-btn {
+                display: none !important;
+            }
+        </style>
+
+        <div style="width:90%;margin-left:auto;margin-right:auto">
+            <style>
+                #profile_avatar_img{
+                    max-width:280px;
+                    max-height:280px;
+                    width: auto;
+                    height: auto;
+                    border:1px solid #ddd;
+                }
+
+                #profile_liscense_img{
+                    max-width:280px;
+                    max-height:280px;
+                    width: auto;
+                    height: auto;
+                    border:1px solid #ddd;
+                }
+            </style>
+
+            <style>
+                @media screen and (min-width: 451px) {
+                    .profile_img_holder{
+                        margin:20px !important;
+                    }
+                }
+                @media screen and (max-width: 450px) {
+                    .profile_img_holder{
+                    }
+                }
+            </style>
+
+
+            <div class="profile_img_holder" style="text-align:center;"><img id="profile_avatar_img"  src="" alt="avatar img"/></div>
+            <a class='upload_avatar' href="#upload_avatar" data-role="button" data-transition="slide" >上傳大頭貼</a>
+            <table data-role="table" id="table-column-toggle" data-mode="columntoggle" class="ui-responsive table-stroke">
+                <tbody>
+                    <tr>
+                        <td class="account">Account:</td>
+                        <td style="text-align: right" id="profile_account">74</td>
+                    </tr>
+                    <tr>
+                        <td class="password">Password:</td>
+                        <td style="text-align: right" id="profile_account"><a class='change_pwd' href="#repasswd" data-role="button" data-transition="slide" >修改密碼</a></td>
+                    </tr>
+                    <tr>
+                        <td class="nick_name">Nickname:</td>
+                        <td style="text-align: right" id="profile_nickname">74</td>
+                    </tr>
+                    <tr>
+                        <td class="first_name">FirstName:</td>
+                        <td style="text-align: right" id="profile_firstname">64</td>
+                    </tr>
+                    <tr>
+                        <td class="last_name">LastName:</td>
+                        <td style="text-align: right" id="profile_lastname">87</td>
+                    </tr>
+                    <tr>
+                        <td class="phone">Phone:</td>
+                        <td style="text-align: right" id="profile_phone">87</td>
+                    </tr>
+                    <tr>
+                        <td class="email">Email:</td>
+                        <td style="text-align: right" id="profile_email">87</td>
+                    </tr>
+                    <tr>
+                        <td class="type">Type:</td>
+                        <td style="text-align: right" id="profile_liscense_type">74</td>
+                    </tr>
+                    <tr>
+                        <td class="number">Liscense:</td>
+                        <td style="text-align: right" id="profile_liscense_number">122</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p class="profile_img_holder" style="text-align:center;"><img id="profile_liscense_img" src="" alt="liscense img"/></p>
+            <a class='upload_liscense' href="#upload_liscense" data-role="button" data-transition="slide" >上傳證件</a>
+            <a class='profile_update' href="#profile_update" data-role="button" data-transition="slide" >修改基本資料</a>
+            <a class='logout' href="#" id="logout" data-role="button" data-transition="slide" >登出</a>
+        </div>
+    </div>
+</div>

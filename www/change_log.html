@@ -1,0 +1,24 @@
+<div data-role="page" id="change_log"  data-theme="a">
+    <script>
+        $("#change_log").off("pageshow").on("pageshow", function(event) {
+            //Important need off here or may fire event multiple times.
+            $.mobile.pageContainer.pagecontainer("load", "./about.html", {});
+
+
+        });
+    </script>
+
+    <div data-role="header">
+        <a class="back" href="#about" id="change_log_prev_btn" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class="change_log_us">Change Log</h1>
+    </div>
+
+    <div data-role="main">
+        V1.00 2014/6/4 Good Start 
+        V1.01 2014/6/11 Ad can hide
+        V1.02 2014/7/8 Change App Icon and Splash Page
+    </div>
+
+    
+    
+</div>

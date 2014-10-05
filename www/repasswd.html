@@ -1,0 +1,84 @@
+<div data-role="page" id="repasswd"  data-theme="a">
+    <script>
+        $("#repasswd").off("pageshow").on("pageshow", function(event) {
+            //Important need off here or may fire event multiple times.
+//            $.mobile.pageContainer.pagecontainer("load", "./index.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./profile.html", {});
+
+            $('#repasswd_submit').off('click').on('click', function(event) {
+                log("OLD = " + $('#old_password').val());
+                log("NEW = " + $('#new_password').val());
+                log("RE = " + $('#re_password').val());
+
+                var old_password = $('#old_password').val();
+                var new_password = $('#new_password').val();
+                var re_password  = $('#re_password').val();
+                
+                
+                if(new_password.length < 1){
+                    alert("請輸入至少一個字元");
+                    return false;
+                }
+                
+                
+                if(new_password !== re_password){
+                    alert("新密碼不正確");
+                    return false;
+                }
+                
+
+                $.ajax({
+                    url: window.api_url + window.repasswd_api,
+                    crossDomain: true,
+                    data: {account:window.user_data.account,old_password:old_password,new_password:new_password},
+                    dataType: "json",
+                    type: 'POST',
+                    success: function(data) {
+                        console.log("REPASSWD");
+                    window.ccc = data;
+                        if (data.sys_code === "200") {
+                            console.log("登入成功");
+//                        $.mobile.changePage( "index.html", { transition: "slideup"} );
+//                            window.user_data = data.data;
+//                            localStorage.setItem("user_data", json_obj_to_db(window.user_data));
+                            $(":mobile-pagecontainer").pagecontainer("change", "index.html", {role: "page", transition: "slide", reverse: true});
+                        } else if(data.sys_code === "403") {
+                            console.log("登入失敗");
+                            alert("登入失敗");
+                            $(":mobile-pagecontainer").pagecontainer("change", "login.html", {role: "page", transition: "slide", reverse: true});
+                        }
+                    }
+                });
+
+
+                return false;
+            });
+            
+            i18n(profile_lang,window.user_data.language);
+        });
+    </script>
+
+    <div data-role="header">
+        <a class='back' href="#profile" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class='change_pwd'>修改密碼</h1>
+    </div>
+
+    <div data-role="main">
+        <form id="login-form">
+            <div class="ui-field-contain">
+                <label class='old_password' for="account">舊的密碼</label>
+                <input type="password" id="old_password" name="account">
+            </div>
+            <div class="ui-field-contain">
+                <label class='new_password' for="password">新密碼</label>
+                <input type="password" id="new_password" name="password">
+            </div>
+            <div class="ui-field-contain">
+                <label for="password">retype</label>
+                <input type="password" id="re_password" name="password">
+            </div>
+            <input type="submit" id="repasswd_submit" class="ui-btn ui-btn-inline" value="Send">
+            <input type="reset" class="ui-btn ui-btn-inline" value="Cancel">
+        </form>
+    </div>
+</div>

@@ -1,0 +1,107 @@
+<div data-role="page" id="register"  data-theme="a">
+    <script>
+        $("#register").off("pageshow").on("pageshow", function(event) {
+            //Important need off here or may fire event multiple times.
+            $.mobile.pageContainer.pagecontainer("load", "./login.html", {});
+
+            $("#register_submit_btn").off("click").on("click", function(event) {
+//REGISTER 成功回到 Login Page.
+//REGISTER FAIL 跳 ALERT.
+//FORM
+                var account = $('#register_account').val();
+                var password = $('#register_password').val();
+                var repassword = $('#register_repassword').val();
+                var email = $('#register_email').val();
+                var phone = $('#register_phone').val();
+
+
+                if ($('#register_account').val().length < 4) {
+//                    alert("User name need at least 4 characters");
+                    alert("帳號至少要 4 個英文字母");
+                    return false;
+                }
+                
+//                if ($('#register_phone').val().length <= 9) {
+//                    alert("Phone not correct");
+//                    return false;
+//                }
+
+                if (/^[a-zA-Z0-9- ]*$/.test($('#register_account').val()) === false) {
+//                    alert("User name must be characters and numbers");
+                    alert("帳號必須是英文跟數字");
+                    return false;
+                }
+
+
+//                if (validateEmail($('#register_email').val()) === false) {
+//                    alert("Email format not correct");
+//                    return false;
+//                }
+
+                if ($('#register_password').val().length < 4) {
+//                    alert("Password need at least 4 characters");
+                    alert("密碼至少要 4 個英文字母");
+                    return false;
+                }
+
+                if ($('#register_password').val() !== $('#register_repassword').val()) {
+//                    alert("Password not correct");
+                    alert("密碼不正確");
+                    return false;
+                }
+
+                function validateEmail(email) {
+                    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                    return re.test(email);
+                }
+
+                log("REGISTER");
+
+//                var account = $('#register_account').val();
+//                var password = $('#register_password').val();
+//                var repassword = $('#register_repassword').val();
+//                var email = $('#register_email').val();
+//                var phone = $('#register_phone').val();
+                
+                $.ajax({
+                    url: window.api_url + window.register_api,
+                    crossDomain: true,
+                    dataType: "json",
+                    type: 'POST',
+                    data: {account: $('#register_account').val(), password: $('#register_password').val(), email: $('#register_email').val(), phone: $('#register_phone').val()},
+                    success: function(data) {
+                        log("REGISTER SUCCESS");
+//                        alert(data);
+                        if(data.sys_code === '201'){
+//                            alert("Account Exists");
+                            alert("已存在的帳號");
+                        }else if(data.sys_code === '200'){
+//                            alert("Welcome To Dive Keeper");
+                            alert("註冊成功");
+                            $(":mobile-pagecontainer").pagecontainer("change", "login.html", {role: "page", transition: "slide", reverse: true});
+                        }
+                        
+                    }
+                });
+                return false;
+            });
+        });
+    </script>
+
+    <div data-role="header">
+        <a href="#login" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1>註冊</h1>
+    </div>
+
+    <div data-role="main">
+        <form>
+            帳號：<input type="text" id="register_account" name="account" >
+            密碼：<input type="password" id="register_password" name="password" >
+            確認：<input type="password" id="register_repassword" name="passwordre" >
+            E-mail：<input type="email" id="register_email" name="email" >
+            手機：<input type="text" id="register_phone" name="phone" >
+            <input id="register_submit_btn" type="submit" value="送出">
+            <input type="reset" value="重填">
+        </form>
+    </div>
+</div>

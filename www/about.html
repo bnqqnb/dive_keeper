@@ -1,0 +1,66 @@
+<div data-role="page" id="about"  data-theme="a">
+    <script>
+        $("#about").off("pageshow").on("pageshow", function(event) {
+            //Important need off here or may fire event multiple times.
+            
+            $.mobile.pageContainer.pagecontainer("load", "./index.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./change_log.html", {});
+
+//            window.return_arr['about'] = 'index';
+
+            if (typeof window.return_arr['about'] !== 'undefined') {
+                $.mobile.pageContainer.pagecontainer("load", "./" + window.return_arr['about'] + ".html", {});
+                $('#about_prev_btn').attr('href', '#' + window.return_arr['about']);
+            }
+
+
+            i18n(about_lang, window.user_data.language);
+
+
+            $.ajax({
+                url: window.api_url + window.get_ad_api,
+                crossDomain: true,
+                dataType: "json",
+                type: 'POST',
+                success: function(data) {
+                    if (data.sys_code === "200") {
+                        var ad_data = data.data;
+                        var now = (new Date);
+                        $('#about_ad_img').attr('src', 'http://divekeeper.com.tw/AD/AD.png?t=' + now);
+                        $('#about_ad_a').attr('href', ad_data.ad_link_url);
+                    }
+                }
+            });
+            
+            if(window.ad_on === true){
+                $('#about_footer').show();
+            }
+        });
+    </script>
+
+    <div data-role="header">
+        <a class="back" href="#index" id="about_prev_btn" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class="about_us">About Us</h1>
+    </div>
+
+    <div data-role="main">
+        <img src="./img/logo.png" style="width:80%;height:auto;margin-left:auto;margin-right:auto;display: block">
+        About Us
+        About Us
+        About Us
+        About Us
+        About Us
+        About Us
+        <a href="#change_log" style="display:inline;color:#ddd" data-transition="slide">v1.0.3</a>
+        <p>2014-09-30</p>
+    </div>
+
+    
+    
+    <div id="about_footer" data-role="footer" data-position="fixed" style="display:none">
+        <a id='about_ad_a' style="display:block;width:320px;height:50px;margin-left:auto;margin-right:auto;padding:0px;">
+            <img id='about_ad_img' style='width:100%;height:100%' alt='AD' src='http://divekeeper.com.tw/AD/AD.png' onError="this.onerror=null;this.src='./img/avatar.png';">
+            <!--<img src='' onError="this.onerror=null;this.src='./img/avatar.png';">-->
+        </a>
+    </div>
+</div>

@@ -1,0 +1,418 @@
+<script >
+    console.log("REDIRECT TO INDEX PAGE");
+    window.location.href = "./index.html";
+</script>
+
+
+<div data-role="page" id="dive_detail"  data-theme="a">
+    <script>
+        $("#dive_detail").off("pageshow").on("pageshow", function(event) {
+
+            //Important need off here or may fire event multiple times.
+            $.mobile.pageContainer.pagecontainer("load", "./dive_list.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./dive_gallery.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./dive_note.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./dive_form.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./dive_form_update.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./about.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./home.html", {});
+
+            //About Page
+            window.return_arr['about'] = 'dive_detail';
+            window.dive_detail_data = window.dive_data[window.dive_detail_index];
+
+            //不要出現 null 字串.
+            for (var key in window.dive_detail_data) {
+                if (!window.dive_detail_data[key]) {
+                    window.dive_detail_data[key] = "";
+                }
+            }
+
+            var tmp = window.dive_detail_data.GPS.split(',');
+            var lat = tmp[0];
+            var lng = tmp[1];
+
+            //location table
+
+            $('#dive_detail_map_canvas').width($('#dive_detail_map_container').width());
+            $('#dive_detail_map_container').height($('#dive_detail_map_container').width());
+            $('#dive_detail_map_canvas').height($('#dive_detail_map_container').width());
+            $('#dive_detail_country').text(dive_detail_data.country);
+            $('#dive_detail_time').text(dive_detail_data.time.substring(11));
+            $('#dive_detail_date').text(dive_detail_data.time.substring(0, 10));
+//            $('#dive_detail_rate').text(dive_detail_data.rate);
+            $('#dive_detail_rate').empty();
+            for (var i = 0; i < dive_detail_data.rate; i++) {
+                $('#dive_detail_rate').append("<span style='color:blue'>★</span>");
+            }
+
+            $('#dive_detail_location').text(dive_detail_data.location);
+            $('#dive_detail_instructor').text(dive_detail_data.instructor);
+            $('#dive_detail_guide').text(dive_detail_data.guide);
+            $('#dive_detail_buddy').text(dive_detail_data.buddy);
+            $('#dive_detail_country').text(dive_detail_data.country);
+            $('#dive_detail_start_pressure').text(dive_detail_data.ostart_pressure);
+            $('#dive_detail_end_pressure').text(dive_detail_data.oend_pressure);
+            if (dive_detail_data.air_type === '1') {
+                $('#dive_detail_air_type').text("Normal Air");
+                $('#dive_detail_air_type').addClass("select_air_1");
+                $('#dive_detail_start_pressure_group').show();
+                $('#dive_detail_end_pressure_group').show();
+                $('#dive_detail_mix_type_group').hide();
+                $('#dive_detail_oxygen_group').hide();
+                $('#dive_detail_nitrox_group').hide();
+            } else if (dive_detail_data.air_type === '2') {
+                $('#dive_detail_air_type').text("Enriched Air Nitrox");
+                $('#dive_detail_air_type').addClass("select_air_2");
+                $('#dive_detail_start_pressure_group').show();
+                $('#dive_detail_end_pressure_group').show();
+                $('#dive_detail_mix_type_group').show();
+                $('#dive_detail_oxygen_group').show();
+                $('#dive_detail_nitrox_group').show();
+            } else {
+                $('#dive_detail_air_type').text("Surface Supplied");
+                $('#dive_detail_air_type').addClass("select_air_3");
+                $('#dive_detail_start_pressure_group').hide();
+                $('#dive_detail_end_pressure_group').hide();
+                $('#dive_detail_mix_type_group').hide();
+                $('#dive_detail_oxygen_group').hide();
+                $('#dive_detail_nitrox_group').hide();
+            }
+
+
+            var str = dive_detail_data.entry_time;
+            str = str.substring(0, 2);
+            if (str > 6 && str < 18) {
+                $('#dive_detail_DN').addClass('day');
+            } else {
+                $('#dive_detail_DN').addClass('night');
+
+            }
+//            $('#dive_detail_DN').text(nice);
+
+            $('#dive_detail_entry_time').text(dive_detail_data.entry_time);
+            $('#dive_detail_descend_time').text(dive_detail_data.descend_time);
+            $('#dive_detail_out_time').text(dive_detail_data.out_time);
+            $('#dive_detail_rest_time').text(dive_detail_data.rest_time);
+            $('#dive_detail_total_time').text(dive_detail_data.total_time);
+            $('#dive_detail_end_pressure').text(dive_detail_data.oend_pressure);
+
+
+//            <option value="1">Standard Air</option>
+//                        <option value="2">EAN32</option>
+//                        <option value="3">EAN36</option>
+//                        <option value="4">Trimix 21/35</option>
+//                        <option value="5">Trimix 18/45</option>
+//                        <option value="6">Trimix 15/55</option>
+
+            if (dive_detail_data.mix_type === '1') {
+                $('#dive_detail_mix_type').text("Standard Air");
+            } else if (dive_detail_data.mix_type === '2') {
+                $('#dive_detail_mix_type').text("EAN32");
+            } else if (dive_detail_data.mix_type === '3') {
+                $('#dive_detail_mix_type').text("EAN36");
+            } else if (dive_detail_data.mix_type === '4') {
+                $('#dive_detail_mix_type').text("Trimix 21/35");
+            } else if (dive_detail_data.mix_type === '5') {
+                $('#dive_detail_mix_type').text("Trimix 18/45");
+            } else if (dive_detail_data.mix_type === '6') {
+                $('#dive_detail_mix_type').text("Trimix 15/55");
+            } else {
+            }
+            $('#dive_detail_oxygen').text(dive_detail_data.oxygen);
+            $('#dive_detail_nitrox').text(dive_detail_data.nitrox);
+            $('#dive_detail_max_depth').text(dive_detail_data.max_depth);
+            $('#dive_detail_avg_depth').text(dive_detail_data.avg_depth);
+            $('#dive_detail_l_temperature').text(dive_detail_data.l_temperature);
+            $('#dive_detail_w_temperature').text(dive_detail_data.w_temperature);
+            $('#dive_detail_visibility').text(dive_detail_data.visibility);
+            $('#dive_detail_transparent').text(dive_detail_data.transparent);
+            $('#dive_detail_weight').text(dive_detail_data.weight);
+            $('#dive_detail_direction').text(dive_detail_data.direction);
+            $('#dive_detail_direction').addClass(dive_detail_data.direction);
+            $('#dive_detail_surf').text(dive_detail_data.surf);
+            if (dive_detail_data.surf === 'HUGE') {
+                $('#dive_detail_surf').addClass("HUGE");
+            } else if (dive_detail_data.surf === 'MEDIUM') {
+                $('#dive_detail_surf').addClass("MEDIUM");
+            } else if (dive_detail_data.surf === 'SMALL') {
+                $('#dive_detail_surf').addClass("SMALL");
+            } else if (dive_detail_data.surf === 'NONE') {
+                $('#dive_detail_surf').addClass("NONE");
+            } else {
+                $('#dive_detail_surf').addClass("OTHER");
+            }
+            $('#dive_detail_weather').text(dive_detail_data.weather);
+            if (dive_detail_data.weather === 'SUNNY') {
+                $('#dive_detail_weather').addClass("SUNNY");
+            } else if (dive_detail_data.weather === 'CLOUDY') {
+                $('#dive_detail_weather').addClass("CLOUDY");
+            } else {
+                $('#dive_detail_weather').addClass("RAINY");
+            }
+            $('#dive_detail_mode').text(dive_detail_data.mode);
+            if (dive_detail_data.mode === 'BOAT') {
+                $('#dive_detail_mode').addClass("select_mode_1");
+            } else {
+                $('#dive_detail_mode').addClass("select_mode_2");
+            }
+
+            $('#dive_detail_purpose').text(dive_detail_data.purpose);
+            if (dive_detail_data.purpose === 'HUNT') {
+                $('#dive_detail_purpose').addClass("select_purpose_1");
+            } else if (dive_detail_data.purpose === 'PHOTO') {
+                $('#dive_detail_purpose').addClass("select_purpose_2");
+            } else if (dive_detail_data.purpose === 'COLLECT') {
+                $('#dive_detail_purpose').addClass("select_purpose_3");
+            } else if (dive_detail_data.purpose === 'TOUR') {
+                $('#dive_detail_purpose').addClass("select_purpose_4");
+            } else {
+                $('#dive_detail_purpose').addClass("select_purpose_5");
+            }
+
+//            $('#dive_detail_share_fb').attr('href', 'https://www.facebook.com/sharer/sharer.php?u=http://divekeeper.com.tw/index.php/dive/dive_view?id=' + dive_detail_data.dive_id);
+
+
+            function initialize_dive_detail() {
+                var mapOptions = {
+//                    center: new google.maps.LatLng(markers[markers.length - 1][1], markers[markers.length - 1][2]),
+                    center: new google.maps.LatLng(lat, lng),
+                    zoom: 8
+                };
+                var map = new google.maps.Map(document.getElementById("dive_detail_map_canvas"),
+                        mapOptions);
+
+                var image = {
+                    url: 'img/pin.png',
+                    // This marker is 20 pixels wide by 32 pixels tall.
+                    size: new google.maps.Size(35, 37),
+                    // The origin for this image is 0,0.
+                    origin: new google.maps.Point(0, 0),
+                    // The anchor for this image is the base of the flagpole at 0,32.
+                    anchor: new google.maps.Point(10, 37)
+                };
+
+                var marker_detail = new google.maps.Marker({
+                    position: new google.maps.LatLng(lat, lng),
+                    map: map,
+                    icon: image
+                });
+            }
+            ;
+
+
+            if (typeof window.return_arr['dive_detail'] !== 'undefined') {
+//                $.mobile.pageContainer.pagecontainer("load", "./" + window.return_arr['dive_detail'] + ".html", {});
+                $('#dive_detail_prev_btn').attr('href', '#' + window.return_arr['dive_detail']);
+            }
+
+            initialize_dive_detail();
+            i18n(dive_lang, window.user_data.language);
+        });
+    </script>
+
+    <div data-role="header">
+        <a id="dive_detail_prev_btn" class="back" href="#dive_list" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class="detail">Detail</h1>
+        <a href="#about" data-transition="slide" class="ui-btn ui-icon-bullets ui-btn-icon-notext ui-corner-all">No text</a>
+    </div>
+
+    <div data-role="main">
+        <style>
+            .ui-table-columntoggle-btn {
+                display: none !important;
+            }
+        </style>
+
+        <div style="width:90%;margin-left:auto;margin-right:auto">
+
+            <div style="height:200px;width:48%;margin:0;float:left;" id="dive_detail_map_container">
+                <div style="width:200px;height:200px;" id="dive_detail_map_canvas"></div>
+            </div>
+
+            <div style="width:48%;margin:0;float:right;">
+                <table data-role="table" id="dive_detail_location_table" data-mode="columntoggle" class="ui-responsive table-stroke">
+                    <tbody>
+                        <tr>
+                            <td class="location">Location:</td>
+                            <td style="text-align: right" id="dive_detail_location"></td>
+                        </tr>
+                        <tr>
+                            <td class="date">Date:</td>
+                            <td style="text-align: right" id="dive_detail_date"></td>
+                        </tr>
+                        <tr>
+                            <td class="time">Time:</td>
+                            <td style="text-align: right" id="dive_detail_time"></td>
+                        </tr>
+                        <tr>
+                            <td class="rate">Rate:</td>
+                            <td style="text-align: right" id="dive_detail_rate"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="clear:both"></div>
+
+            <div style="">
+                <div style="width:48%;float:left"><a href="#dive_gallery" data-role="button" data-transition="slide" class="gallery">照片集</a></div>
+                <div style="width:48%;float:right"><a href="#dive_note" data-role="button" data-transition="slide" class="note">筆記</a></div>
+            </div>
+
+            <table data-role="table" id="dive_detail_mode_table" data-mode="columntoggle" class="ui-responsive table-stroke">
+                <tbody>
+                    <tr>
+                        <td class="instructor">Instructor:</td>
+                        <td style="text-align: right" id="dive_detail_instructor">CCCC</td>
+                    </tr>
+                    <tr>
+                        <td class="guide">Guide:</td>
+                        <td style="text-align: right" id="dive_detail_guide">CCCC</td>
+                    </tr>
+                    <tr>
+                        <td class="buddy">Buddy:</td>
+                        <td style="text-align: right" id="dive_detail_buddy">CCCC</td>
+                    </tr>
+                    <tr>
+                        <td class="country">Country:</td>
+                        <td style="text-align: right" id="dive_detail_country"></td>
+                    </tr>
+                    <tr>
+                        <td class="air_type">Air:</td>
+                        <!--air type = 1 2 4-->
+                        <td style="text-align: right" id="dive_detail_air_type"></td>
+                    </tr>
+                    <tr id="dive_detail_start_pressure_group">
+                        <td class="start_pressure">Start Pressure</td>
+                        <td style="text-align: right" id="dive_detail_start_pressure"></td>
+                    </tr>
+                    <tr id="dive_detail_end_pressure_group">
+                        <td class="end_pressure">End Pressure</td>
+                        <td style="text-align: right" id="dive_detail_end_pressure"></td>
+                    </tr>
+                    <tr id="dive_detail_mix_type_group">
+                        <td class="mix_type">Air Mix:</td>
+                        <!--air type = 1 2 4-->
+                        <td style="text-align: right" id="dive_detail_mix_type"></td>
+                    </tr>
+                    <tr id="dive_detail_oxygen_group">
+                        <td class="oxygen">Oxygen:</td>
+                        <td style="text-align: right" id="dive_detail_oxygen"></td>
+                    </tr>
+                    <tr id="dive_detail_nitrox_group">
+                        <td class="nitrox">Nitrox:</td>
+                        <td style="text-align: right" id="dive_detail_nitrox"></td>
+                    </tr>
+                    <tr>
+                        <td class="entry_time">Entry Time</td>
+                        <td style="text-align: right" id="dive_detail_entry_time"></td>
+                    </tr>
+                    <tr>
+                        <td class="descend_time">Descend Time</td>
+                        <td style="text-align: right" id="dive_detail_descend_time"></td>
+                    </tr>
+                    <tr>
+                        <td class="out_time">Out Time</td>
+                        <td style="text-align: right" id="dive_detail_out_time"></td>
+                    </tr>
+                    <tr>
+                        <td class="rest_time">Rest Time</td>
+                        <td style="text-align: right" id="dive_detail_rest_time"></td>
+                    </tr>
+                    <tr>
+                        <td class="total_time">Total Time</td>
+                        <td style="text-align: right" id="dive_detail_total_time"></td>
+                    </tr>
+                    <tr>
+                        <td class="max_depth">Max Depth</td>
+                        <td style="text-align: right" id="dive_detail_max_depth"></td>
+                    </tr>
+                    <tr>
+                        <td class="avg_depth">Avg Depth</td>
+                        <td style="text-align: right" id="dive_detail_avg_depth"></td>
+                    </tr>
+                    <tr>
+                        <td class="l_temperature">Land Temperature</td>
+                        <td style="text-align: right" id="dive_detail_l_temperature"></td>
+                    </tr>
+                    <tr>
+                        <td class="w_temperature">Water Temperature</td>
+                        <td style="text-align: right" id="dive_detail_w_temperature"></td>
+                    </tr>
+                    <tr>
+                        <td class="visibility">Visibility</td>
+                        <td style="text-align: right" id="dive_detail_visibility"></td>
+                    </tr>
+                    <tr>
+                        <td class="transparent">Transparent</td>
+                        <td style="text-align: right" id="dive_detail_transparent"></td>
+                    </tr>
+                    <tr>
+                        <td class="weight">Weight</td>
+                        <td style="text-align: right" id="dive_detail_weight"></td>
+                    </tr>
+                    <tr>
+                        <td class="direction">Wind</td>
+                        <td style="text-align: right" id="dive_detail_direction"></td>
+                    </tr>
+                    <tr>
+                        <td class="surf">Surf</td>
+                        <td style="text-align: right" id="dive_detail_surf"></td>
+                    </tr>
+                    <tr>
+                        <td class="weather">Weather</td>
+                        <td style="text-align: right" id="dive_detail_weather"></td>
+                    </tr>
+                    <tr>
+                        <td class="mode">Mode</td>
+                        <td style="text-align: right" id="dive_detail_mode"></td>
+                    </tr>
+                    <tr>
+                        <td class="DN">DN</td>
+                        <td style="text-align: right" id="dive_detail_DN"></td>
+                    </tr>
+                    <!--                    <tr>
+                                            <td class="mode">Mode</td>
+                                            <td style="text-align: right" id="dive_detail_mode"></td>
+                                        </tr>-->
+                    <tr>
+                        <td class="purpose">Purpose</td>
+                        <td style="text-align: right" id="dive_detail_purpose"></td>
+                    </tr>
+                </tbody>
+            </table>
+            <div style="">
+                <div style="width:48%;float:left;"><a href="#dive_form_update" data-role="button" data-transition="slide" class="modify">修改</a></div>
+                <div style="width:48%;float:right;">
+<!--                    <script type="text/javascript">
+                        FB.init({appId: "YOUR_APP_ID", status: true, cookie: true});
+                        function share_me() {
+                            console.log("CICICI");
+                            FB.ui({
+                                method: 'feed',
+                                app_id: '754812634579027',
+                                link: 'http://divekeeper.com.tw/index.php/dive/dive_view?id=99',
+                                picture: 'PIC_URL',
+                                name: 'SHARE_NAME',
+                                caption: 'SHARE_CAPTION',
+                                description: 'SHARE_DESCRIPTION'
+                            },
+                            function(response) {
+                                if (response && response.post_id) {
+                                    self.location.href = 'SUCCESS_URL'
+                                }
+                                else {
+                                    self.location.href = 'CANCEL_URL'
+                                }
+                            });
+                        }
+                    </script>-->
+
+                    <button onclick="window.plugins.socialsharing.shareViaFacebook('', null /* img */, 'http://divekeeper.com.tw/index.php/dive/dive_view?id=' + dive_detail_data.dive_id /* url */, function() {console.log('share ok');}, function(errormsg){alert(errormsg);})" class="share_fb">分享ＦＢ</button>
+                    <!--<a id="dive_detail_share_fb" href="https://www.facebook.com/sharer/sharer.php?u=http://divekeeper.com.tw/index.php/dive/dive_view?id=" data-role="button" data-transition="slide" class="share_fb">分享ＦＢ</a>-->
+                    <!--<div onclick="share_me()" id="dive_detail_share_fb">分享ＦＢ</div>-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

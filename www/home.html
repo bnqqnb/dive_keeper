@@ -1,0 +1,197 @@
+<div data-role="page" id="home" data-theme="a">
+    <script type="text/javascript">
+
+        function render_marker2(func, data) {
+            window.markers = [];
+            $.each(data.data, function(index, value) {
+                var str = value.GPS.split(',');
+                window.markers.push([value.location, str[0], str[1]]);
+            });
+            func();
+        }
+
+
+        function initialize2() {
+            if (!_.isEmpty(window.markers)) {
+                var mapOptions = {
+                    center: new google.maps.LatLng(markers[markers.length - 1][1], markers[markers.length - 1][2]),
+                    zoom: 8
+                };
+            } else {
+                var mapOptions = {
+                    center: new google.maps.LatLng(24.03, 121.30),
+                    zoom: 8
+                };
+            }
+
+
+            var map = new google.maps.Map(document.getElementById("map-canvas2"),
+                    mapOptions);
+
+//            var infowindow = new google.maps.InfoWindow(), marker, i;
+//            window.home_infoBubble = new InfoBubble({});
+            var home_infoBubble;
+
+            var image = {
+                url: 'img/pin.png',
+                // This marker is 20 pixels wide by 32 pixels tall.
+                size: new google.maps.Size(35, 37),
+                // The origin for this image is 0,0.
+                origin: new google.maps.Point(0, 0),
+                // The anchor for this image is the base of the flagpole at 0,32.
+                anchor: new google.maps.Point(10, 37)
+            };
+            if (!_.isEmpty(window.markers)) {
+                for (var i = 0; i < markers.length; i++) {
+                    marker = new google.maps.Marker({
+                        position: new google.maps.LatLng(markers[i][1], markers[i][2]),
+                        map: map,
+                        icon: image
+                    });
+                    google.maps.event.addListener(marker, 'click', (function(marker, i) {
+                        return function() {
+                            //set dive_detail_return
+                            set_home_infoBubble(markers[i][0], markers[i][1], markers[i][2], map);
+                            window.return_arr['dive_detail'] = 'home';
+                            window.dive_detail_index = i;
+//                            $(":mobile-pagecontainer").pagecontainer("change", "dive_detail.html", {role: "page", transition: "slide"});
+                        };
+                    })(marker, i));
+                }
+            }
+
+
+
+            function set_home_infoBubble(location, lat, lng, map) {
+                if (typeof home_infoBubble !== 'undefined') {
+                    home_infoBubble.close();
+                    delete home_infoBubble;
+                }
+
+                var newlat = parseFloat(lat) + (0.000025 * Math.pow(2, (21 - map.getZoom())));
+                home_infoBubble = new InfoBubble({
+                    map: map,
+                    content: '<div id="home_info_bubble_text" class="phoneytext">' + location + '</div>',
+                    position: new google.maps.LatLng(newlat, lng),
+//                    position: new google.maps.LatLng(23, 121),
+                    shadowStyle: 1,
+                    padding: 0,
+                    backgroundColor: 'rgb(57,57,57)',
+                    borderRadius: 4,
+                    arrowSize: 10,
+                    borderWidth: 1,
+                    borderColor: '#2c2c2c',
+                    disableAutoPan: true,
+                    hideCloseButton: true,
+                    arrowPosition: 30,
+                    backgroundClassName: 'phoney',
+                    arrowStyle: 0,
+                    minWidth: '180'
+                });
+
+                home_infoBubble.setPosition(new google.maps.LatLng(newlat, lng));
+                home_infoBubble.open();
+
+                google.maps.event.addListener(home_infoBubble, "domready", function() {
+                    setTimeout(execcc, 200);  //Wait UI animation finish then bind event.
+
+                    function execcc() {
+                        $('.phoney').off('click').on('click', function() {
+                            $(":mobile-pagecontainer").pagecontainer("change", "dive_detail.html", {role: "page", transition: "slide"});
+                        });
+                    }
+                });
+
+            }
+        }
+//        google.maps.event.addDomListener(window, 'load', initialize);
+    </script>
+
+    <script>
+
+        set_home_map_size = function() {
+            $('#map-canvas2').width();
+        };
+
+
+        $("#home").off("pageshow").on("pageshow", function(event) {
+            $.mobile.pageContainer.pagecontainer("load", "./about.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./profile.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./dive_list.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./dive_form.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./dive_detail.html", {});
+
+            window.return_arr['about'] = 'home';
+
+            window.screen_h = ($(window).height() - $('#home_header').height() - $('.ui-grid-b').height() - 3);
+//            window.screen_h = ($('#home_main').height());
+            var screen_w = $(window).width();
+
+            $('#map-canvas2').width(screen_w);
+            $('#map-canvas2').height(screen_h);
+            var now = (new Date);
+            $('#home_avatar').attr('src', 'http://divekeeper.com.tw/member_pic/' + window.user_data.member_id + '.png?t=' + now);
+
+            get_dive_list(function() {
+                get_dive_GPS(partial(render_marker2, initialize2));
+                i18n(home_lang, window.user_data.language);
+            });
+
+
+//            get_dive_GPS(partial(render_marker2, initialize2));
+//            i18n(home_lang, window.user_data.language);
+
+        });
+    </script>
+
+    <div data-role="header" id="home_header">
+        <a class='back' href="#index" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class='map'>MAP</h1>
+        <a href="#about" data-transition="slide" class="ui-btn ui-icon-bullets ui-btn-icon-notext ui-corner-all">No text</a>
+
+    </div>
+
+    <style>
+
+
+
+        @media screen and (min-width: 451px) {
+            /*            .home_btn{
+                            font-size: 12px;
+                        }*/
+
+            .home_nav_btns{
+                float:left;width:86%
+            }
+
+            .home_nav_img{
+                margin-top:10px;float:left;width:10%;margin-left:auto;margin-right:auto;
+            }
+        }
+        @media screen and (max-width: 450px) {
+            .home_btn{
+                font-size: 12px;
+            }
+
+            .home_nav_btns{
+                float:right;width:86%
+            }
+
+            .home_nav_img{
+                margin-top:1px;float:left;width:10%;margin-left:auto;margin-right:auto;
+            }
+        }
+    </style>
+
+    <div data-role="main" id="home_main">
+        <div id="home_nav">
+            <div class="home_nav_img" style=""><img style="max-width:42px;max-height:42px;margin-left:auto;margin-right:auto;border:1px solid #ddd;display:block;" alt="avatar" id="home_avatar" src="./img/avatar.png" onError="this.onerror=null;this.src='./img/avatar.png';"></div>
+            <div class="home_nav_btns ui-grid-b" style="">
+                <div class="ui-block-a"><a class='home_btn dive_log' href="#dive_list" data-role="button" data-transition="slide">潛水日誌</a></div>
+                <div class="ui-block-b"><a class='home_btn add_dive' href="#dive_form" data-role="button" data-transition="slide">新增日誌</a></div>
+                <div class="ui-block-c"><a class='home_btn profile_manage' href="#profile" data-role="button" data-transition="slide">帳號管理</a></div>
+            </div>
+        </div>
+        <div id="map-canvas2" style="width:200px;height:200px;"></div>
+    </div>
+</div>

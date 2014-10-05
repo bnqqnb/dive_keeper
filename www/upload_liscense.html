@@ -1,0 +1,52 @@
+<div data-role="page" id="upload_liscense"  data-theme="a">
+    <script>
+        $("#upload_liscense").off("pageshow").on("pageshow", function(event) {
+            //Important need off here or may fire event multiple times.
+            $.mobile.pageContainer.pagecontainer("load", "./index.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./profile.html", {});
+
+
+            $('#upload_liscense_choose_pic').click(function() {
+                getPictureFILEFromPhotoLibrary(upload_liscense_to_server);
+//                getPictureFILEFromPhotoLibrary(print_good);
+            });
+
+            $('#upload_liscense_take_pic').click(function() {
+                getPictureFILEFromCamera(upload_liscense_to_server);
+//                getPictureFILEFromCamera(print_good);
+            });
+            var now = (new Date);
+            $('#upload_liscense_img').attr('src', 'http://divekeeper.com.tw/liscense_pic/' + window.user_data.member_id + '.png?t='+ now);
+            $('#upload_liscense_img').attr('onError',"this.onerror=null;this.src='./img/liscense.png';");
+            i18n(profile_lang,window.user_data.language);
+        });
+    </script>
+    <style>
+        #upload_liscense_img{
+            margin:20px;
+            display: block;
+            max-width:280px;
+            max-height:280px;
+            width: auto;
+            height: auto;
+            border:1px solid #ddd;
+            margin-left:auto;
+            margin-right:auto;
+        }
+
+    </style>
+
+    <div data-role="header">
+        <a href="#profile" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class="upload_liscense">Upload Liscense</h1>
+    </div>
+
+    <div data-role="main">
+        <div style="text-align:center;">
+            <!--<p class="liscense">Liscense:</p>-->
+            <img id="upload_liscense_img" width="280" height="210" src="" alt="upload avatar preview"/>
+            <a id="upload_liscense_choose_pic" href="#" data-role="button" class="update_from_gallery">Choose a picture from gallery</a>
+            <a id="upload_liscense_take_pic" href="#" data-role="button" class="update_from_camera">Take a picture from camera</a>
+        </div>	
+    </div>
+</div>

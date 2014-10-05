@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+        <meta name="format-detection" content="telephone=no" />
+        <!--WARNING: for iOS 7, remove the width=device-width and height=device-height attributes. See https://issues.apache.org/jira/browse/CB-4323--> 
+        <meta name="viewport" content="width=device-width, initial-scale=1,  maximum-scale=1.0, minimum-scale=1.0, height=device-height">
+        <!--<meta name="viewport" content="width=device-width, initial-scale=1,  maximum-scale=1.0, minimum-scale=1.0, target-densityDpi=device-dpi, height=device-height">-->
+        <title>Dive Keeper</title>
+        <link rel="stylesheet" type="text/css" href="css/jquery.mobile-1.4.2.min.css" />
+        <link href="css/index.css" rel="stylesheet" type="text/css" />
+        <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <link href="css/mobiscroll.custom-2.9.3.min.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+        <script type="text/javascript" src="js/underscore-min.js"></script>
+        <script type="text/javascript" src="js/jquery.mobile-1.4.2.min.js"></script>
+        <script type="text/javascript" src="galleria/galleria-1.3.5.min.js"></script>
+        <script type="text/javascript" src="js/config.js"></script>
+        <script type="text/javascript" src="js/func.js"></script>
+        <script type="text/javascript" src="js/language.js"></script>
+        <script src="js/mobiscroll.custom-2.9.3.min.js" type="text/javascript"></script>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBYp7VXknzKT0BIWhTa74mKk3OT8_7QuSg&sensor=true"></script>
+        <script src="js/infobubble-compiled.js"></script>
+
+
+        <script type="text/javascript" src="js/SocialSharing.js"></script>
+
+
+        <!--mobile debug-->
+        <!--<script src="http://106.186.123.132:8888/target/target-script-min.js#dk"></script>-->
+    </head>
+    <body>
+        <script type="text/javascript" src="cordova.js"></script>
+        <div data-role="page" id="index"  data-theme="a">
+            <script type="text/javascript">
+                function render_marker(func, data) {
+                    window.markers = [];
+                    $.each(data.data, function(index, value) {
+                        var str = value.GPS.split(',');
+                        window.markers.push([value.location, str[0], str[1]]);
+                    });
+                    func();
+                }
+
+                function HomeControl(controlDiv, map) {
+
+                    // Set CSS styles for the DIV containing the control
+                    // Setting padding to 5 px will offset the control
+                    // from the edge of the map
+                    controlDiv.style.padding = '10px';
+
+                    // Set CSS for the control border
+                    var controlUI = document.createElement('div');
+                    controlUI.style.backgroundColor = '#eee';
+                    controlUI.style.borderRadius = '5px';
+                    controlUI.style.borderStyle = 'solid';
+                    controlUI.style.borderWidth = '1px';
+                    controlUI.style.padding = '2px';
+                    controlUI.style.color = 'gray';
+                    controlUI.style.cursor = 'pointer';
+                    controlUI.style.textAlign = 'center';
+                    controlUI.style.width = '240px';
+                    controlUI.style.marginBottom = '15px';
+                    controlUI.title = 'Go Diving';
+                    controlDiv.appendChild(controlUI);
+
+
+
+                    var avatar_img = document.createElement('img');
+                    //                        window.now = (new Date);
+                    avatar_img.setAttribute('src', './img/avatar.png');
+                    avatar_img.setAttribute('onError', "this.onerror=null;this.src='./img/avatar.png';");
+                    if (typeof window.user_data !== "undefined") {
+                        if (!isNaN(window.user_data.member_id)) {
+                            var now = (new Date);
+                            avatar_img.setAttribute('src', 'http://divekeeper.com.tw/member_pic/' + window.user_data.member_id + '.png?t=' + now);
+                        }
+                    }
+                    avatar_img.style.maxWidth = '50px';
+                    avatar_img.style.maxHeight = '50px';
+                    avatar_img.style.margin = '0';
+                    avatar_img.style.padding = '0';
+                    avatar_img.style.borderStyle = 'solid';
+                    avatar_img.style.borderWidth = '1px';
+                    avatar_img.style.borderColor = '#ccc';
+
+
+                    var avatar_div = document.createElement('div');
+                    avatar_div.style.width = '30%';
+                    avatar_div.style.float = 'left';
+
+
+                    var upper_div = document.createElement('div');
+                    upper_div.style.Width = '20px';
+                    upper_div.style.marginTop = '10px';
+                    upper_div.style.marginBottom = '5px';
+                    avatar_div.appendChild(avatar_img);
+                    upper_div.appendChild(avatar_div);
+
+                    var air_div = document.createElement('div');
+                    air_div.style.fontFamily = 'Arial,sans-serif';
+                    air_div.style.fontSize = '16px';
+                    air_div.className = 'rect';
+                    air_div.style.color = '#000';
+                    air_div.style.paddingLeft = '4px';
+                    air_div.style.paddingRight = '4px';
+                    //                air_div.style.paddingTop = '3px';
+                    air_div.style.paddingTop = '1px';
+                    air_div.style.height = '50px';
+                    air_div.style.width = "65%";
+                    air_div.style.float = "left";
+                    air_div.innerHTML = '<b class="air_number">潛水氣瓶數：</b><br /><b id="index_air_number">' + window.dive_data.length + '</b>';
+                    upper_div.appendChild(air_div);
+
+
+
+                    var go_diving_btn = document.createElement('a');
+                    go_diving_btn.setAttribute('href', '#');
+                    go_diving_btn.innerHTML = "GO Diving";
+                    go_diving_btn.className = 'go_diving_btn';
+                    go_diving_btn.style.color = '#fff';
+                    go_diving_btn.style.width = '90%';
+                    go_diving_btn.style.marginLeft = 'auto';
+                    go_diving_btn.style.marginRight = 'auto';
+                    go_diving_btn.style.marginBottom = '6px';
+
+                    var go_diving_btn_div = document.createElement('div');
+                    go_diving_btn_div.appendChild(go_diving_btn);
+
+                    controlUI.appendChild(upper_div);
+                    controlUI.appendChild(go_diving_btn_div);
+
+                    // Setup the click event listeners: simply set the map to
+                    // Chicago
+                    //                google.maps.event.addDomListener(controlUI, 'click', function() {
+                    google.maps.event.addDomListener(go_diving_btn, 'click', function() {
+                        //map.setCenter(chicago)
+
+                        if (typeof window.user_data === "undefined") {
+                            $(":mobile-pagecontainer").pagecontainer("change", "login.html", {role: "page", transition: "slide"});
+                        } else {
+                            if (!isNaN(window.user_data.member_id)) {
+                                $(":mobile-pagecontainer").pagecontainer("change", "home.html", {role: "page", transition: "slide"});
+                            }
+                        }
+                        return false;
+                    });
+                }
+
+                //            var chicago = new google.maps.LatLng(41.850033, -87.6500523);
+
+                function initialize() {
+                    var start_lat = '';
+                    var start_lng = '';
+                    if (typeof window.markers !== 'undefined' && !_.isEmpty(window.markers)) {
+                        var start_lat = markers[markers.length - 1][1];
+                        var start_lng = markers[markers.length - 1][2];
+                    } else {
+                        var start_lat = 24.03;
+                        var start_lng = 121.30;
+                    }
+
+                    var mapOptions = {
+                        //                    center: new google.maps.LatLng(-34.397, 150.644),
+                        //                    center: new google.maps.LatLng(markers[markers.length - 1][1], markers[markers.length - 1][2]),
+                        center: new google.maps.LatLng(start_lat, start_lng),
+                        zoom: 8
+                    };
+                    var map = new google.maps.Map(document.getElementById("map-canvas"),
+                            mapOptions);
+
+
+
+
+                    var contentString = '<div class="phoney">' +
+                            '<div class="phoneytext">cicici</div>' +
+                            '</div>';
+//                        var contentString = '<div id="content" >' +
+//                                '<div id="siteNotice">' +
+//                                '</div>' +
+//                                '<h2 id="firstHeading" class="firstHeading">DDD</h2>' +
+//                                '<div id="bodyContent">' +
+//                                '<p><b>CCC</b>,ccc</p>' +
+//                                '<p>Attribution: Uluru, <a href="http://en.wikipedia.org/w/index.php?title=Uluru&oldid=297882194">' +
+//                                'http://en.wikipedia.org/w/index.php?title=Uluru</a> (last visited June 22, 2009).</p>' +
+//                                '</div>' +
+//                                '</div>';
+
+                    var homeControlDiv = document.createElement('div');
+                    var homeControl = new HomeControl(homeControlDiv, map);
+
+                    homeControlDiv.index = 1;
+                    map.controls[google.maps.ControlPosition.BOTTOM_CENTER].push(homeControlDiv);
+                    var infowindow = new google.maps.InfoWindow(), marker, i;
+                    var infowindow = new google.maps.InfoWindow({
+//                            content: '<div class="phoneytext">Some label</div>',
+                        content: contentString,
+                        pixelOffset: new google.maps.Size(-8, 0),
+                        shadowStyle: 1,
+                        padding: 0,
+                        backgroundColor: 'rgb(57,57,57)',
+                        borderRadius: 4,
+                        arrowSize: 10,
+                        borderWidth: 1,
+                        borderColor: '#2c2c2c',
+                        disableAutoPan: true,
+                        hideCloseButton: true,
+                        arrowPosition: 30,
+                        backgroundClassName: 'phoney',
+                        arrowStyle: 2
+                    });
+
+                    var image = {
+                        url: 'img/pin.png',
+                        // This marker is 20 pixels wide by 32 pixels tall.
+                        size: new google.maps.Size(35, 37),
+                        // The origin for this image is 0,0.
+                        origin: new google.maps.Point(0, 0),
+                        // The anchor for this image is the base of the flagpole at 0,32.
+                        anchor: new google.maps.Point(10, 37)
+                    };
+                    if (typeof window.markers !== 'undefined') {
+                        for (i = 0; i < markers.length; i++) {
+                            marker = new google.maps.Marker({
+                                position: new google.maps.LatLng(markers[i][1], markers[i][2]),
+                                map: map,
+                                icon: image
+                            });
+//                        google.maps.event.addListener(marker, 'click', (function(marker, i) {
+//                            return function(event) {
+////                                        infowindow.setContent(markers[i][0]);
+////                                        infowindow.setPosition();
+////                                        infowindow.setOptions();
+////                                        infowindow.setPosition(event.latLng);
+//                                infowindow.open(map, marker);
+//                            };
+//                        })(marker, i));
+                        }
+                    }
+                }
+                //            google.maps.event.addDomListener(window, 'load', initialize);
+            </script>
+
+
+            <script>
+
+                // Avatar url
+                // divekeeper.com.tw/member_pic/11.png    
+
+
+                //When test this page use http://localhost:8383/dive_keeper/index.html
+                //http://localhost:8383/dive_keeper/index.html is not equal to http://localhost:8383/dive_keeper/
+
+                //Two page requires return arr
+                //1. Upload Avatar Page.
+                //2. Upload Gallery Page.
+                window.ad_on = false;
+                window.return_arr = [];
+                window.return_arr['about'] = 'index';
+                window.dive_data = [];
+                window.dive_all_data = [];
+
+                if (localStorage.getItem('user_data')) {
+                    window.user_data = json_obj_from_db(localStorage.getItem('user_data'));
+                }
+
+
+//                $("#index").off("pageshow").on("pageshow", function(event) {
+                page_off_on("#index", function() {
+                    //AD
+                    $.post(window.api_url + window.get_ad_api, null, function(data) {
+                        if (data.sys_code === "200") {
+                            var ad_data = data.data;
+                            if (ad_data.ad_on === "1") {
+                                window.ad_on = true;
+                                $('#index_footer').show();
+                                $('#index_ad_img').attr('src', 'http://divekeeper.com.tw/AD/AD.png?t=' + (new Date));
+                                $('#index_ad_a').attr('href', ad_data.ad_link_url);
+                            } else {
+                                window.ad_on = false;
+                            }
+                        }
+
+                        window.dive_data = [];
+                        $.mobile.pageContainer.pagecontainer("load", "./register.html", {});
+                        $.mobile.pageContainer.pagecontainer("load", "./login.html", {});
+                        $.mobile.pageContainer.pagecontainer("load", "./about.html", {});
+                        if (localStorage.getItem('account')) {
+                            $('#account').val(localStorage.getItem('account').replace(/"/g, ""));
+                        }
+
+                        //scree_h 是畫面的高度.
+                        var screen_h;
+                        if (window.ad_on === true) {
+                            var screen_h = $(window).height() - $('#index_footer').height() - $('#index_header').height();
+
+                            //This place may have error caution.
+
+                        } else {
+                            var screen_h = $(window).height() - $('#index_header').height();
+//                            $('#index_footer').hide();
+                            $('#index_footer').remove();
+                        }
+
+                        var screen_w = $(window).width();
+                        $('#map-canvas').width(screen_w);
+                        $('#map-canvas').height(screen_h);
+
+                        navigator.geolocation.getCurrentPosition(
+                                function(position) {
+//                         alert('Latitude: ' + position.coords.latitude + '\n' +
+//                                'Longitude: ' + position.coords.longitude + '\n' +
+//                                'Altitude: ' + position.coords.altitude + '\n' +
+//                                'Accuracy: ' + position.coords.accuracy + '\n' +
+//                                'Altitude Accuracy: ' + position.coords.altitudeAccuracy + '\n' +
+//                                'Heading: ' + position.coords.heading + '\n' +
+//                                'Speed: ' + position.coords.speed + '\n' +
+//                                'Timestamp: ' + position.timestamp + '\n');
+                                    window.position = position;
+                                },
+                                function onError(error) {
+                                    //Unable to get current position so Set 101 as default position.
+                                    window.position = {};
+                                    window.position.coords = {};
+                                    window.position.coords.latitude = 25.03361;
+                                    window.position.coords.longitude = 121.56500;
+                                    alert('Unable to get current position');
+//                                window.position = position;
+//                                alert('code: ' + error.code + '\n' +
+//                                        'message: ' + error.message + '\n');
+                                });
+
+                        //Original
+                        if (localStorage.getItem('user_data')) {
+                            get_dive_list(function() {
+                                get_dive_GPS(partial(render_marker, initialize));
+                                i18n(index_lang, window.user_data.language);
+                            });
+                        } else {
+                            initialize();
+                        }
+                    }, "json"); //end of post
+                });
+            </script>
+
+
+            <div data-role="header" id="index_header">
+                <img src="./img/logo.png" style="height:40px;width:auto;position: absolute;top:4px;left:4px"><h1>Dive Keeper</h1>
+            </div>
+
+            <div data-role="main"  class="ui-content" id="index-container" style="maring:0;padding:0">
+                <div >
+                    <div id="map-canvas" ></div>
+                </div>
+            </div>
+            <!--<a href="#login" class="ui-btn" data-transition="slide">Login(跳到登入畫面)</a>-->
+            <!--<a href="#home" class="ui-btn" data-transition="slide">GO DIVING</a>-->
+
+            <!--<div data-role="footer" id="index_footer" style="display:none">-->
+            <div data-role="footer" data-position="fixed"  data-tap-toggle="false" id="index_footer" style="display:none">
+                <a id='index_ad_a' style="display:block;width:320px;height:50px;margin-left:auto;margin-right:auto;padding:0px;">
+                    <img id='index_ad_img' style='width:100%;height:100%' alt='AD' src='http://divekeeper.com.tw/AD/AD.png' onError="this.onerror=null;this.src='./img/avatar.png';">
+                    <!--<img src='' onError="this.onerror=null;this.src='./img/avatar.png';">-->
+                </a>
+            </div>
+        </div>
+    </body>
+</html>

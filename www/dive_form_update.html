@@ -1,0 +1,862 @@
+<div data-role="page" id="dive_form_update"  data-theme="a">
+    <!--<script src="http://api.mygeoposition.com/api/geopicker/api.js" type="text/javascript"></script>-->
+    <script>
+        var geocoder, map;
+        
+        var weather_arr = ["SUNNY", "CLOUDY", "RAINY"];
+        var weather_render_arr = ["晴天", "雨天", "陰天"];
+        var weather_class_arr = ["SUNNY", "CLOUDY", "RAINY"];
+        
+        var surf_arr = ["HUGE", "MEDIUM", "SMALL","NONE","OTHER"];
+        var surf_render_arr = ["大浪", "中浪", "小浪", "無浪", "其他"];
+        var surf_class_arr = ["HUGE", "MEDIUM", "SMALL","NONE","OTHER"];
+
+        var purpose_arr = ["HUNT", "PHOTO", "COLLECT", "TOUR", "OTHER"];
+        var purpose_render_arr = ["狩獵", "攝影", "採集", "觀賞", "其他"];
+        var purpose_class_arr = ["select_purpose_1", "select_purpose_2", "select_purpose_3", "select_purpose_4", "select_purpose_5"];
+
+        var mode_arr = ["BOAT", "SHORE"];
+        var mode_render_arr = ["船潛", "岸潛"];
+        var mode_class_arr = ["select_mode_1", "select_mode_2"];
+
+
+        function render_dropdown_update_list() {
+
+            $.each(weather_arr, function(index, value) {
+                $('#dive_form_update_weather').append('<option value="' + weather_arr[index] + '" class="' + weather_class_arr[index] + '"></option>');
+
+                if (index === weather_arr.length - 1) {
+                    $('#dive_form_update_weather').selectmenu('refresh');
+                }
+            });
+            
+            $.each(surf_arr, function(index, value) {
+                $('#dive_form_update_surf').append('<option value="' + surf_arr[index] + '" class="' + surf_class_arr[index] + '"></option>');
+
+                if (index === surf_arr.length - 1) {
+                    $('#dive_form_update_surf').selectmenu('refresh');
+                }
+            });
+
+            $.each(purpose_arr, function(index, value) {
+                $('#dive_form_update_purpose').append('<option value="' + purpose_arr[index] + '" class="' + purpose_class_arr[index] + '"></option>');
+//                $('#dive_form_update_purpose').append('<option value="' + purpose_arr[index] + '">' + purpose_render_arr[index] + '</option>');
+
+                if (index === purpose_arr.length - 1) {
+                    $('#dive_form_update_purpose').selectmenu('refresh');
+                }
+            });
+
+            $.each(mode_arr, function(index, value) {
+                $('#dive_form_update_mode').append('<option value="' + mode_arr[index] + '" class= "' + mode_class_arr[index] + '"></option>');
+//                $('#dive_form_update_mode').append('<option value="' + mode_arr[index] + '">' + mode_render_arr[index] + '</option>');
+
+                if (index === mode_arr.length - 1) {
+                    $('#dive_form_update_mode').selectmenu('refresh');
+                }
+            });
+        }
+
+        function initialize_dive_form_update_GPS(address) {
+            var screen_w = $('#dive_form_update_main').width();
+            var screen_h = screen_w / 4 * 3;
+            $('#dive_form_update_GPS').width(screen_w);
+            $('#dive_form_update_GPS').height(screen_h);
+
+            var tmp = dive_form_update_data.GPS.split(',');
+            var lat = tmp[0];
+            var lng = tmp[1];
+
+            geocoder = new google.maps.Geocoder();
+            geocoder.geocode({
+                'address': address
+            }, function(results, status) {
+
+
+                if (status === google.maps.GeocoderStatus.OK) {
+                    var myOptions = {
+                        zoom: 8,
+//                        center: results[0].geometry.location,
+                        mapTypeId: google.maps.MapTypeId.ROADMAP,
+                        center: new google.maps.LatLng(lat, lng)
+                    };
+                    map = new google.maps.Map(document.getElementById("dive_form_update_GPS"), myOptions);
+
+                    var image = {
+                        url: 'img/pin.png',
+                        // This marker is 20 pixels wide by 32 pixels tall.
+                        size: new google.maps.Size(35, 37),
+                        // The origin for this image is 0,0.
+                        origin: new google.maps.Point(0, 0),
+                        // The anchor for this image is the base of the flagpole at 0,32.
+                        anchor: new google.maps.Point(10, 37)
+                    };
+
+                    var myLatlng = new google.maps.LatLng(lat, lng);
+                    var marker = new google.maps.Marker({
+                        map: map,
+                        position: myLatlng,
+                        icon:image
+                    });
+
+                    google.maps.event.addListener(map, 'click', function(event) {
+                        $('#dive_form_update_lat').val(event.latLng.lat());
+                        $('#dive_form_update_lng').val(event.latLng.lng());
+
+                        marker.setMap(null);
+                        myLatlng = new google.maps.LatLng(event.latLng.lat(), event.latLng.lng());
+                        marker = new google.maps.Marker({
+                            map: map,
+                            position: myLatlng,
+                            icon:image,
+                            title: ""
+                        });
+                    });
+                }
+            });
+        }
+
+
+//        function initialize_dive_form_update_GPS_c() {
+//            var screen_w = $('#dive_form_main').width();
+//            var screen_h = screen_w / 4 * 3;
+//
+//            $('#dive_form_GPS').width(screen_w);
+//            $('#dive_form_GPS').height(screen_h);
+//
+//            var mapOptions = {
+//                center: new google.maps.LatLng(24.03, 121.30),
+//                zoom: 8
+//            };
+//
+//
+//            var map = new google.maps.Map(document.getElementById("dive_form_GPS"),
+//                    mapOptions);
+//
+//
+//            google.maps.event.addListener(map, 'click', function(event) {
+//                $('#dive_form_update_lat').val(event.latLng.lat());
+//                $('#dive_form_update_lng').val(event.latLng.lng());
+//
+//                marker.setMap(null);
+//                myLatlng = new google.maps.LatLng(event.latLng.lat(), event.latLng.lng());
+//                marker = new google.maps.Marker({
+//                    map: map,
+//                    position: myLatlng,
+//                    title: ""
+//                });
+//            });
+//        }
+
+        function initialize_update_data() {
+            window.dive_form_update_data = window.dive_detail_data;
+
+            //location table
+
+            var tmp = dive_form_update_data.GPS.split(',');
+            var lat = tmp[0];
+            var lng = tmp[1];
+
+            $('#dive_form_update_lat').val(lat);
+            $('#dive_form_update_lng').val(lng);
+
+
+            $('#dive_form_update_map_canvas').width($('#dive_form_update_map_container').width());
+            $('#dive_form_update_map_container').height($('#dive_form_update_map_container').width());
+            $('#dive_form_update_map_canvas').height($('#dive_form_update_map_container').width());
+
+            $('#dive_form_update_country').val(dive_form_update_data.country);
+            $('#dive_form_update_country').selectmenu('refresh');
+            window.country_name = $("#dive_form_update_country option:selected").text();
+            initialize_dive_form_update_GPS(country_name);
+
+            $('#dive_form_update_time').val(dive_form_update_data.time);
+//            $('#dive_form_update_date').val(dive_form_update_data.time.substring(0, 10));
+            $('#dive_form_update_rate').val(dive_form_update_data.rate);
+            $('#dive_form_update_rate').selectmenu('refresh');
+            $('#dive_form_update_location').val(dive_form_update_data.location);
+
+            //mode table
+
+            $('#dive_form_update_instructor').val(dive_form_update_data.instructor);
+            $('#dive_form_update_guide').val(dive_form_update_data.guide);
+            $('#dive_form_update_buddy').val(dive_form_update_data.buddy);
+
+            $('#dive_form_update_country').val(dive_form_update_data.country);
+            $('#dive_form_update_air_type').val(dive_form_update_data.air_type);
+            $('#dive_form_update_air_type').selectmenu('refresh');
+            $('#dive_form_update_mix_type').val(dive_form_update_data.mix_type);
+            $('#dive_form_update_mix_type').selectmenu('refresh');
+            $('#dive_form_update_start_pressure').val(dive_form_update_data.ostart_pressure);
+            $('#dive_form_update_start_pressure').slider("refresh");
+            $('#dive_form_update_end_pressure').val(dive_form_update_data.oend_pressure);
+            $('#dive_form_update_end_pressure').slider("refresh");
+            
+            
+            
+            $('#dive_form_update_time').val(dive_form_update_data.time);
+            $('#dive_form_update_entry_time').val(dive_form_update_data.entry_time);
+            $('#dive_form_update_descend_time').val(dive_form_update_data.descend_time);
+            $('#dive_form_update_out_time').val(dive_form_update_data.out_time);
+            
+            $('#dive_form_update_rest_time').val(dive_form_update_data.rest_time);
+            $('#dive_form_update_total_time').val(dive_form_update_data.total_time);
+            $('#dive_form_update_max_depth').val(dive_form_update_data.max_depth);
+            $('#dive_form_update_max_depth').slider("refresh");
+            $('#dive_form_update_avg_depth').val(dive_form_update_data.avg_depth);
+            $('#dive_form_update_avg_depth').slider("refresh");
+            $('#dive_form_update_l_temperature').val(dive_form_update_data.l_temperature);
+            $('#dive_form_update_l_temperature').slider("refresh");
+            $('#dive_form_update_w_temperature').val(dive_form_update_data.w_temperature);
+            $('#dive_form_update_w_temperature').slider("refresh");
+            $('#dive_form_update_transparent').val(dive_form_update_data.transparent);
+            $('#dive_form_update_transparent').slider("refresh");
+            $('#dive_form_update_visibility').val(dive_form_update_data.visibility);
+            $('#dive_form_update_visibility').slider("refresh");
+            $('#dive_form_update_weight').val(dive_form_update_data.weight);
+            $('#dive_form_update_weight').slider("refresh");
+            $('#dive_form_update_direction').val(dive_form_update_data.direction);
+            $('#dive_form_update_direction').selectmenu('refresh');
+            $('#dive_form_update_surf').val(dive_form_update_data.surf);
+            $('#dive_form_update_surf').selectmenu('refresh');
+            $('#dive_form_update_weather').val(dive_form_update_data.weather);
+            $('#dive_form_update_weather').selectmenu('refresh');
+            $('#dive_form_update_mode').val(dive_form_update_data.mode);
+            $('#dive_form_update_mode').selectmenu('refresh');
+            $('#dive_form_update_purpose').val(dive_form_update_data.purpose);
+            $('#dive_form_update_purpose').selectmenu('refresh');
+
+
+            //oxygen  nitrox 
+            $('#dive_form_update_oxygen').val(dive_form_update_data.oxygen);
+            $('#dive_form_update_oxygen').slider("refresh");
+            $('#dive_form_update_nitrox').val(dive_form_update_data.nitrox);
+            $('#dive_form_update_nitrox').slider("refresh");
+
+            set_air_type(dive_form_update_data.air_type);
+        }
+
+    </script>
+
+    <script>
+        $("#dive_form_update").off("pageshow").on("pageshow", function(event) {
+//            $.mobile.pageContainer.pagecontainer("load", "./home.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./dive_detail.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./about.html", {});
+//            initialize_dive_form_update_GPS(window.dive_detail_data.country);
+
+
+            $('#dive_form_update_country').off('change').on('change', function(event) {
+                var country_name = $("#dive_form_update_country option:selected").text();
+                initialize_dive_form_update_GPS(country_name);
+//                initialize_dive_form_update_GPS("Tahiti");
+                $('#dive_form_update_country').selectmenu('refresh');
+            });
+
+            $("#dive_form_update_time").mobiscroll().datetime({theme: 'jqm', display: 'bottom', dateFormat: 'yy-mm-dd', timeFormat: 'HH:ii:ss', lang: 'zh', delay: '50'});
+            $("#dive_form_update_entry_time").mobiscroll().time({theme: 'jqm', display: 'bottom', dateFormat: 'yy-mm-dd', timeFormat: 'HH:ii:ss', lang: 'zh', delay: '50'});
+            $("#dive_form_update_descend_time").mobiscroll().time({theme: 'jqm', display: 'bottom', dateFormat: 'yy-mm-dd', timeFormat: 'HH:ii:ss', lang: 'zh', delay: '50'});
+            $("#dive_form_update_out_time").mobiscroll().time({theme: 'jqm', display: 'bottom', dateFormat: 'yy-mm-dd', timeFormat: 'HH:ii:ss', lang: 'zh', delay: '50'});
+            $("#dive_form_update_total_time").mobiscroll().time({theme: 'jqm', display: 'bottom', dateFormat: 'yy-mm-dd', timeFormat: 'HH:ii:ss', lang: 'zh', delay: '50'});
+            $("#dive_form_update_rest_time").mobiscroll().time({theme: 'jqm', display: 'bottom', dateFormat: 'yy-mm-dd', timeFormat: 'HH:ii:ss', lang: 'zh', delay: '50'});
+
+            render_dropdown_update_list();
+            initialize_update_data();
+            i18n(dive_lang, window.user_data.language);
+
+//            $('#dive_form_update_country').val('TW');
+
+
+
+
+
+
+            $('#dive_form_update_submit').off('click').on('click', function(event) {
+                log($('#dive_form_update_main_form').serialize());
+
+
+                if ($('#dive_form_update_lng').val() === '') {
+//                    alert("請填寫 GPS 資料");
+                    alert(get_lang(window.user_data.language,dive_lang, 'GPS')+get_lang(window.user_data.language,error_lang, 'empty_error'));
+                    return false;
+                }
+
+                if ($('#dive_form_update_time').val() === '') {
+//                    alert("請填寫時間");
+                    alert(get_lang(window.user_data.language,dive_lang, 'time')+get_lang(window.user_data.language,error_lang, 'empty_error'));
+                    return false;
+                }
+
+                if ($('#dive_form_update_location').val() === '') {
+//                    alert("請填寫地點");
+                    alert(get_lang(window.user_data.language,dive_lang, 'location')+get_lang(window.user_data.language,error_lang, 'empty_error'));
+                    return false;
+                }
+                
+                if ($('#dive_form_update_location').val().match(/[`~!@#\$%\^&\*\(\)\-=_+\\\[\]{}/\?,\.\<\>]+/)) {
+//                    alert('地點不可含有特殊字元');
+                    alert(get_lang(window.user_data.language,dive_lang, 'location')+get_lang(window.user_data.language,error_lang, 'symbol_error'));
+                    return false;
+                }
+                
+                if ($('#dive_form_update_instructor').val().match(/[`~!@#\$%\^&\*\(\)\-=_+\\\[\]{}/\?,\.\<\>]+/)) {
+//                    alert('教練不可含有特殊字元');
+                    alert(get_lang(window.user_data.language,dive_lang, 'instructor')+get_lang(window.user_data.language,error_lang, 'symbol_error'));
+                    return false;
+                }
+                
+                if ($('#dive_form_update_guide').val().match(/[`~!@#\$%\^&\*\(\)\-=_+\\\[\]{}/\?,\.\<\>]+/)) {
+//                    alert('導潛不可含有特殊字元');
+                    alert(get_lang(window.user_data.language,dive_lang, 'guide')+get_lang(window.user_data.language,error_lang, 'symbol_error'));
+                    return false;
+                }
+                
+                if ($('#dive_form_update_buddy').val().match(/[`~!@#\$%\^&\*\(\)\-=_+\\\[\]{}/\?,\.\<\>]+/)) {
+//                    alert('伴潛不可含有特殊字元');
+                    alert(get_lang(window.user_data.language,dive_lang, 'buddy')+get_lang(window.user_data.language,error_lang, 'symbol_error'));
+                    return false;
+                }
+                
+                if ($('#dive_form_update_surf').val().match(/[`~!@#\$%\^&\*\(\)\-=_+\\\[\]{}/\?,\.\<\>]+/)) {
+//                    alert('浪況不可含有特殊字元');
+                    alert(get_lang(window.user_data.language,dive_lang, 'surf')+get_lang(window.user_data.language,error_lang, 'symbol_error'));
+                    return false;
+                }
+                
+                if ($('#dive_form_update_weather').val().match(/[`~!@#\$%\^&\*\(\)\-=_+\\\[\]{}/\?,\.\<\>]+/)) {
+//                    alert('氣候不可含有特殊字元');
+                    alert(get_lang(window.user_data.language,dive_lang, 'weather')+get_lang(window.user_data.language,error_lang, 'symbol_error'));
+                    return false;
+                }
+
+                $.ajax({
+                    type: 'POST',
+                    url: window.api_url + window.update_dive_api,
+                    data: $('#dive_form_update_main_form').serialize() + "&account=" + window.user_data.account + "&dive_id=" + window.dive_detail_data.dive_id,
+                    success: function(data) {
+//                        log("UPDATE SUCCESS")
+                        alert(get_lang(window.user_data.language, dive_lang, 'update_success'));
+                        get_dive_list(function() {
+                            $(":mobile-pagecontainer").pagecontainer("change", "dive_detail.html", {role: "page", transition: "slide", reverse: true});
+                        });
+                    }
+                });
+                return false;
+            });
+
+        });
+    </script>
+
+    <script>
+        $(function() {
+            set_update_air_type = function(type) {
+                $('#dive_form_update_oxygen').slider();
+                $('#dive_form_update_start_pressure').slider();   //start pressure
+                $('#dive_form_update_end_pressure').slider();   //end   pressure
+                $('#dive_form_update_nitrox').slider();
+
+                if (type === '1') { // Normal Air
+                    $('#dive_form_update_start_pressure_div').show();
+                    $('#dive_form_update_end_pressure_div').show();
+                    $('#dive_form_update_oxygen_div').hide();
+                    $('#dive_form_update_nitrox_div').hide();
+                    $('#dive_form_update_mix_type_div').hide();
+
+
+                } else if (type === '2') {  //enriched
+                    $('#dive_form_update_start_pressure_div').show();
+                    $('#dive_form_update_end_pressure_div').show();
+                    $('#dive_form_update_oxygen_div').show();
+                    $('#dive_form_update_nitrox_div').show();
+                    $('#dive_form_update_mix_type_div').show();
+
+                } else if (type === '4') {  //surface air
+                    $('#dive_form_update_start_pressure_div').hide();
+                    $('#dive_form_update_end_pressure_div').hide();
+                    $('#dive_form_update_oxygen_div').hide();
+                    $('#dive_form_update_nitrox_div').hide();
+                    $('#dive_form_update_mix_type_div').hide();
+                } else {
+                    log("NO");
+                }
+            };
+
+            set_update_air_mix = function(type) {
+                if (type === '1') {        //Standard Air
+                    $('#dive_form_update_oxygen').val(21).slider("refresh");
+                    $('#dive_form_update_nitrox').val(79).slider("refresh");
+                } else if (type === '2') {  //EAN 32
+                    $('#dive_form_update_oxygen').val(32).slider("refresh");
+                    $('#dive_form_update_nitrox').val(68).slider("refresh");
+                } else if (type === '3') {  //EAN 36
+                    $('#dive_form_update_oxygen').val(36).slider("refresh");
+                    $('#dive_form_update_nitrox').val(64).slider("refresh");
+                } else if (type === '4') {  //Trimix 21/35
+                    $('#dive_form_update_oxygen').val(21).slider("refresh");
+                    $('#dive_form_update_nitrox').val(44).slider("refresh");
+                } else if (type === '5') {  //Trimix 18/45
+                    $('#dive_form_update_oxygen').val(18).slider("refresh");
+                    $('#dive_form_update_nitrox').val(37).slider("refresh");
+                } else if (type === '6') {  //Trimix 15/55
+                    $('#dive_form_update_oxygen').val(15).slider("refresh");
+                    $('#dive_form_update_nitrox').val(30).slider("refresh");
+                }
+            };
+
+
+
+
+            $('#dive_form_update_air_type').on('change', function(event) {
+                set_update_air_type($(this).val());
+            });
+
+            $('#dive_form_update_mix_type').on('change', function(event) {
+                set_update_air_mix($(this).val());
+            });
+        });
+    </script>
+
+
+    <div data-role="header">
+        <a class="back" href="#dive_detail" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class="update_dive">修改資料</h1>
+        <a href="#about" data-transition="slide" class="ui-btn ui-icon-bullets ui-btn-icon-notext ui-corner-all">No text</a>
+
+    </div>
+
+    <div data-role="main">
+        <div id="dive_form_update_main" style="width:90%; margin-left:auto; margin-right:auto">
+            <form id="dive_form_update_main_form">
+                <h4 class="location_header">Location:</h4>
+                <label for="country" class="country">Country:</label>
+                <select name="country" id="dive_form_update_country">
+                    <option value="">Country...</option>
+                    <option value="AF">Afghanistan</option>
+                    <option value="AL">Albania</option>
+                    <option value="DZ">Algeria</option>
+                    <option value="AS">American Samoa</option>
+                    <option value="AD">Andorra</option>
+                    <option value="AG">Angola</option>
+                    <option value="AI">Anguilla</option>
+                    <option value="AG">Antigua &amp; Barbuda</option>
+                    <option value="AR">Argentina</option>
+                    <option value="AA">Armenia</option>
+                    <option value="AW">Aruba</option>
+                    <option value="AU">Australia</option>
+                    <option value="AT">Austria</option>
+                    <option value="AZ">Azerbaijan</option>
+                    <option value="BS">Bahamas</option>
+                    <option value="BH">Bahrain</option>
+                    <option value="BD">Bangladesh</option>
+                    <option value="BB">Barbados</option>
+                    <option value="BY">Belarus</option>
+                    <option value="BE">Belgium</option>
+                    <option value="BZ">Belize</option>
+                    <option value="BJ">Benin</option>
+                    <option value="BM">Bermuda</option>
+                    <option value="BT">Bhutan</option>
+                    <option value="BO">Bolivia</option>
+                    <option value="BL">Bonaire</option>
+                    <option value="BA">Bosnia &amp; Herzegovina</option>
+                    <option value="BW">Botswana</option>
+                    <option value="BR">Brazil</option>
+                    <option value="BC">British Indian Ocean Ter</option>
+                    <option value="BN">Brunei</option>
+                    <option value="BG">Bulgaria</option>
+                    <option value="BF">Burkina Faso</option>
+                    <option value="BI">Burundi</option>
+                    <option value="KH">Cambodia</option>
+                    <option value="CM">Cameroon</option>
+                    <option value="CA">Canada</option>
+                    <option value="IC">Canary Islands</option>
+                    <option value="CV">Cape Verde</option>
+                    <option value="KY">Cayman Islands</option>
+                    <option value="CF">Central African Republic</option>
+                    <option value="TD">Chad</option>
+                    <option value="CD">Channel Islands</option>
+                    <option value="CL">Chile</option>
+                    <option value="CN">China</option>
+                    <option value="CI">Christmas Island</option>
+                    <option value="CS">Cocos Island</option>
+                    <option value="CO">Colombia</option>
+                    <option value="CC">Comoros</option>
+                    <option value="CG">Congo</option>
+                    <option value="CK">Cook Islands</option>
+                    <option value="CR">Costa Rica</option>
+                    <option value="CT">Cote D'Ivoire</option>
+                    <option value="HR">Croatia</option>
+                    <option value="CU">Cuba</option>
+                    <option value="CB">Curacao</option>
+                    <option value="CY">Cyprus</option>
+                    <option value="CZ">Czech Republic</option>
+                    <option value="DK">Denmark</option>
+                    <option value="DJ">Djibouti</option>
+                    <option value="DM">Dominica</option>
+                    <option value="DO">Dominican Republic</option>
+                    <option value="TM">East Timor</option>
+                    <option value="EC">Ecuador</option>
+                    <option value="EG">Egypt</option>
+                    <option value="SV">El Salvador</option>
+                    <option value="GQ">Equatorial Guinea</option>
+                    <option value="ER">Eritrea</option>
+                    <option value="EE">Estonia</option>
+                    <option value="ET">Ethiopia</option>
+                    <option value="FA">Falkland Islands</option>
+                    <option value="FO">Faroe Islands</option>
+                    <option value="FJ">Fiji</option>
+                    <option value="FI">Finland</option>
+                    <option value="FR">France</option>
+                    <option value="GF">French Guiana</option>
+                    <option value="PF">French Polynesia</option>
+                    <option value="FS">French Southern Ter</option>
+                    <option value="GA">Gabon</option>
+                    <option value="GM">Gambia</option>
+                    <option value="GE">Georgia</option>
+                    <option value="DE">Germany</option>
+                    <option value="GH">Ghana</option>
+                    <option value="GI">Gibraltar</option>
+                    <option value="GB">Great Britain</option>
+                    <option value="GR">Greece</option>
+                    <option value="GL">Greenland</option>
+                    <option value="GD">Grenada</option>
+                    <option value="GP">Guadeloupe</option>
+                    <option value="GU">Guam</option>
+                    <option value="GT">Guatemala</option>
+                    <option value="GN">Guinea</option>
+                    <option value="GY">Guyana</option>
+                    <option value="HT">Haiti</option>
+                    <option value="HW">Hawaii</option>
+                    <option value="HN">Honduras</option>
+                    <option value="HK">Hong Kong</option>
+                    <option value="HU">Hungary</option>
+                    <option value="IS">Iceland</option>
+                    <option value="IN">India</option>
+                    <option value="ID">Indonesia</option>
+                    <option value="IA">Iran</option>
+                    <option value="IQ">Iraq</option>
+                    <option value="IR">Ireland</option>
+                    <option value="IM">Isle of Man</option>
+                    <option value="IL">Israel</option>
+                    <option value="IT">Italy</option>
+                    <option value="JM">Jamaica</option>
+                    <option value="JP">Japan</option>
+                    <option value="JO">Jordan</option>
+                    <option value="KZ">Kazakhstan</option>
+                    <option value="KE">Kenya</option>
+                    <option value="KI">Kiribati</option>
+                    <option value="NK">Korea North</option>
+                    <option value="KS">Korea South</option>
+                    <option value="KW">Kuwait</option>
+                    <option value="KG">Kyrgyzstan</option>
+                    <option value="LA">Laos</option>
+                    <option value="LV">Latvia</option>
+                    <option value="LB">Lebanon</option>
+                    <option value="LS">Lesotho</option>
+                    <option value="LR">Liberia</option>
+                    <option value="LY">Libya</option>
+                    <option value="LI">Liechtenstein</option>
+                    <option value="LT">Lithuania</option>
+                    <option value="LU">Luxembourg</option>
+                    <option value="MO">Macau</option>
+                    <option value="MK">Macedonia</option>
+                    <option value="MG">Madagascar</option>
+                    <option value="MY">Malaysia</option>
+                    <option value="MW">Malawi</option>
+                    <option value="MV">Maldives</option>
+                    <option value="ML">Mali</option>
+                    <option value="MT">Malta</option>
+                    <option value="MH">Marshall Islands</option>
+                    <option value="MQ">Martinique</option>
+                    <option value="MR">Mauritania</option>
+                    <option value="MU">Mauritius</option>
+                    <option value="ME">Mayotte</option>
+                    <option value="MX">Mexico</option>
+                    <option value="MI">Midway Islands</option>
+                    <option value="MD">Moldova</option>
+                    <option value="MC">Monaco</option>
+                    <option value="MN">Mongolia</option>
+                    <option value="MS">Montserrat</option>
+                    <option value="MA">Morocco</option>
+                    <option value="MZ">Mozambique</option>
+                    <option value="MM">Myanmar</option>
+                    <option value="NA">Nambia</option>
+                    <option value="NU">Nauru</option>
+                    <option value="NP">Nepal</option>
+                    <option value="AN">Netherland Antilles</option>
+                    <option value="NL">Netherlands (Holland, Europe)</option>
+                    <option value="NV">Nevis</option>
+                    <option value="NC">New Caledonia</option>
+                    <option value="NZ">New Zealand</option>
+                    <option value="NI">Nicaragua</option>
+                    <option value="NE">Niger</option>
+                    <option value="NG">Nigeria</option>
+                    <option value="NW">Niue</option>
+                    <option value="NF">Norfolk Island</option>
+                    <option value="NO">Norway</option>
+                    <option value="OM">Oman</option>
+                    <option value="PK">Pakistan</option>
+                    <option value="PW">Palau Island</option>
+                    <option value="PS">Palestine</option>
+                    <option value="PA">Panama</option>
+                    <option value="PG">Papua New Guinea</option>
+                    <option value="PY">Paraguay</option>
+                    <option value="PE">Peru</option>
+                    <option value="PH">Philippines</option>
+                    <option value="PO">Pitcairn Island</option>
+                    <option value="PL">Poland</option>
+                    <option value="PT">Portugal</option>
+                    <option value="PR">Puerto Rico</option>
+                    <option value="QA">Qatar</option>
+                    <option value="ME">Republic of Montenegro</option>
+                    <option value="RS">Republic of Serbia</option>
+                    <option value="RE">Reunion</option>
+                    <option value="RO">Romania</option>
+                    <option value="RU">Russia</option>
+                    <option value="RW">Rwanda</option>
+                    <option value="NT">St Barthelemy</option>
+                    <option value="EU">St Eustatius</option>
+                    <option value="HE">St Helena</option>
+                    <option value="KN">St Kitts-Nevis</option>
+                    <option value="LC">St Lucia</option>
+                    <option value="MB">St Maarten</option>
+                    <option value="PM">St Pierre &amp; Miquelon</option>
+                    <option value="VC">St Vincent &amp; Grenadines</option>
+                    <option value="SP">Saipan</option>
+                    <option value="SO">Samoa</option>
+                    <option value="AS">Samoa American</option>
+                    <option value="SM">San Marino</option>
+                    <option value="ST">Sao Tome &amp; Principe</option>
+                    <option value="SA">Saudi Arabia</option>
+                    <option value="SN">Senegal</option>
+                    <option value="RS">Serbia</option>
+                    <option value="SC">Seychelles</option>
+                    <option value="SL">Sierra Leone</option>
+                    <option value="SG">Singapore</option>
+                    <option value="SK">Slovakia</option>
+                    <option value="SI">Slovenia</option>
+                    <option value="SB">Solomon Islands</option>
+                    <option value="OI">Somalia</option>
+                    <option value="ZA">South Africa</option>
+                    <option value="ES">Spain</option>
+                    <option value="LK">Sri Lanka</option>
+                    <option value="SD">Sudan</option>
+                    <option value="SR">Suriname</option>
+                    <option value="SZ">Swaziland</option>
+                    <option value="SE">Sweden</option>
+                    <option value="CH">Switzerland</option>
+                    <option value="SY">Syria</option>
+                    <option value="TA">Tahiti</option>
+                    <option value="TW">Taiwan</option>
+                    <option value="TJ">Tajikistan</option>
+                    <option value="TZ">Tanzania</option>
+                    <option value="TH">Thailand</option>
+                    <option value="TG">Togo</option>
+                    <option value="TK">Tokelau</option>
+                    <option value="TO">Tonga</option>
+                    <option value="TT">Trinidad &amp; Tobago</option>
+                    <option value="TN">Tunisia</option>
+                    <option value="TR">Turkey</option>
+                    <option value="TU">Turkmenistan</option>
+                    <option value="TC">Turks &amp; Caicos Is</option>
+                    <option value="TV">Tuvalu</option>
+                    <option value="UG">Uganda</option>
+                    <option value="UA">Ukraine</option>
+                    <option value="AE">United Arab Emirates</option>
+                    <option value="GB">United Kingdom</option>
+                    <option value="US">United States of America</option>
+                    <option value="UY">Uruguay</option>
+                    <option value="UZ">Uzbekistan</option>
+                    <option value="VU">Vanuatu</option>
+                    <option value="VS">Vatican City State</option>
+                    <option value="VE">Venezuela</option>
+                    <option value="VN">Vietnam</option>
+                    <option value="VB">Virgin Islands (Brit)</option>
+                    <option value="VA">Virgin Islands (USA)</option>
+                    <option value="WK">Wake Island</option>
+                    <option value="WF">Wallis &amp; Futana Is</option>
+                    <option value="YE">Yemen</option>
+                    <option value="ZR">Zaire</option>
+                    <option value="ZM">Zambia</option>
+                    <option value="ZW">Zimbabwe</option>
+                </select>
+
+
+
+                <label class="GPS">GPS:</label>
+                <div id="dive_form_update_GPS" style="width:200px;height:200px">
+                </div>
+                <label class="latitude"></label>
+                <input type="text" name="latitude" id="dive_form_update_lat" readonly>
+                <label class="longitude"></label>
+                <input type="text" name="longitude" id="dive_form_update_lng" readonly>
+                <label class="location">Location:</label>
+                <input type="text" name="location" id="dive_form_update_location">
+                <label class="time">Time:</label>
+                <input type="text" name="time" id="dive_form_update_time">
+                <h4 class="divers_header">Divers</h4>
+                <label class="instructor">Instructor:</label>
+                <input  type="text" id="dive_form_update_instructor" name="instructor" >
+                <label class="guide">Guide:</label>
+                <input  type="text" id="dive_form_update_guide" name="guide" >
+                <label class="buddy">Buddy:</label>
+                <input  type="text" id="dive_form_update_buddy" name="buddy" >
+
+                <label class="air_type">Air</label>
+                <select name="air_type" id="dive_form_update_air_type">
+                    <option value="1" class="select_air_1">Normal Air</option>
+                    <option value="2" class="select_air_2">Enriched Air Nitrox</option>
+                    <option value="4" class="select_air_3">Surface Supplied</option>
+                </select>
+
+                <div id="dive_form_update_start_pressure_div">
+                    <label class="start_pressure">Start Pressure (Bar):</label>
+                    <input  type="range" id="dive_form_update_start_pressure" name="ostart_pressure" min="0" max="200" value="200">
+                </div>
+
+                <div id="dive_form_update_end_pressure_div">
+                    <label class="end_pressure">End Pressure (Bar):</label>
+                    <input  type="range" id="dive_form_update_end_pressure" name="oend_pressure" min="0" max="200" value="0" >
+                </div>
+
+                <div id="dive_form_update_mix_type_div">
+                    <label class="mix_type">Mix Type:</label>
+                    <select name="mix_type" id="dive_form_update_mix_type">
+                        <option value="1">Standard Air</option>
+                        <option value="2">EAN32</option>
+                        <option value="3">EAN36</option>
+                        <option value="4">Trimix 21/35</option>
+                        <option value="5">Trimix 18/45</option>
+                        <option value="6">Trimix 15/55</option>
+                    </select>
+                </div>
+
+                <div id="dive_form_update_oxygen_div">
+                    <label class="oxygen"></label>
+                    <input  type="range" id="dive_form_update_oxygen" name="oxygen" min="0" max="100" value="0">
+                </div>
+
+                <div id="dive_form_update_nitrox_div">
+                    <label class="nitrox"></label>
+                    <input  type="range" id="dive_form_update_nitrox" name="nitrox" min="0" max="100" value="0">
+                </div>
+
+                <h4 class="duration_header">Duration:</h4>
+                
+                <label class="entry_time"></label>
+                <input  type="text" id="dive_form_update_entry_time" name="entry_time" >
+
+                <!--total time:-->
+                <label class="descend_time"></label>
+                <input  type="text" id="dive_form_update_descend_time" name="descend_time" >
+
+                <!--total time:-->
+                <label class="out_time"></label>
+                <input  type="text" id="dive_form_update_out_time" name="out_time" >
+
+                
+                <label class="total_time"></label>
+                <input  type="text" id="dive_form_update_total_time" name="total_time" >
+
+                <label class="rest_time"></label>
+                <input  type="text" id="dive_form_update_rest_time" name="rest_time" >
+
+                <h4 class="depth_header">Depth:</h4>
+                <label class="avg_depth"></label>
+                <input  type="range" id="dive_form_update_avg_depth" name="avg_depth" min="0" max="200" value="20">
+
+                <label class="max_depth"></label>
+                <input  type="range" id="dive_form_update_max_depth" name="max_depth" min="0" max="200" value="20">
+
+
+                <h4 class="temperature_header">Temperature:</h4>
+                <label class="l_temperature"></label>
+                <input  type="range" id="dive_form_update_l_temperature" name="l_temperature" min="-20" max="50" value="20">
+
+                <label class="w_temperature"></label>
+                <input  type="range" id="dive_form_update_w_temperature" name="w_temperature" min="-20" max="50" value="20">
+
+
+                <h4 class="status_header">Status:</h4>
+                <label class="transparent"></label>
+                <input  type="range" id="dive_form_update_transparent" name="transparent" min="0" max="50" value="0" >
+                
+                <label class="visibility"></label>
+                <input  type="range" id="dive_form_update_visibility" name="visibility" min="0" max="50" value="0" >
+
+                <label class="weight"></label>
+                <input  type="range" id="dive_form_update_weight" name="weight" min="0" max="50" value="0">
+
+
+                <h4 class="weather_header">Weather:</h4>
+                <!--Wind Direction:-->
+                <label class="direction"></label>
+                <!--("", "N", "E", "S", "W", "NE", "SE", "SW", "NW", "NNE", "NEN", "ESE", "SSE", "SSW", "WSW", "WNW", "NNW");-->
+                <select id="dive_form_update_direction" name="direction">
+                    <option value=""></option>
+                    <option class="N" value="N">N</option>
+                    <option class="E" value="E">E</option>
+                    <option class="S" value="S">S</option>
+                    <option class="W" value="W">W</option>
+                    <option class="NE" value="NE">NE</option>
+                    <option class="SE" value="SE">SE</option>
+                    <option class="SW" value="SW">SW</option>
+                    <option class="NW" value="NW">NW</option>
+                    <option class="NNE" value="NNE">NNE</option>
+                    <option class="ENE" value="ENE">ENE</option>
+                    <option class="ESE" value="ESE">ESE</option>
+                    <option class="SSE" value="SSE">SSE</option>
+                    <option class="SSW" value="SSW">SSW</option>
+                    <option class="WSW" value="WSW">WSW</option>
+                    <option class="WNW" value="WNW">WNW</option>
+                    <option class="NNE" value="NNW">NNW</option>
+                </select>
+
+                <label class="surf"></label>
+                <!--<input  type="text" id="dive_form_update_surf" name="surf" >-->
+                <select id="dive_form_update_surf" name="surf">
+
+                </select>
+
+                <label class="weather"></label>
+                <!--<input  type="text" id="dive_form_update_weather" name="weather" >-->
+                <select id="dive_form_update_weather" name="weather">
+
+                </select>
+
+                <!--Note-->
+                <label class="mode"></label>
+                <select id="dive_form_update_mode" name="mode">
+
+                </select>
+
+
+                <label class="purpose"></label>
+
+                <!--$arr = array("", "TUTORIAL", "TRAINING", "NAVIGATE", "TEST", "MISSION", "CASUAL", "PHOTO");-->
+                <!--$display = array("", "教學", "訓練", "導航", "測試", "任務", "休閒", "攝影");-->
+                <select id="dive_form_update_purpose" name="purpose">
+                    <!--                    <option value="">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="4">4</option>-->
+                </select>
+
+                <label class="rate"></label>
+                <!--<input  type="text" id="dive_form_update_rate" name="rate" >-->
+                <select id="dive_form_update_rate" name="rate">
+                    <option value="1">★</option>
+                    <option value="2">★★</option>
+                    <option value="3">★★★</option>
+                    <option value="4">★★★★</option>
+                    <option value="5">★★★★★</option>
+                </select>
+
+
+                <input id="dive_form_update_submit" type="submit" value="SEND">
+                <input type="reset" value="CANCEL">
+
+            </form>
+        </div>
+    </div>
+</div>

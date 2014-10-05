@@ -1,0 +1,73 @@
+<div data-role="page" id="dive_note_update"  data-theme="a">
+    <script type="text/javascript" src="ckeditor/ckeditor.js"></script>
+    
+    <script>
+        $("#dive_note_update").off("pageshow").on("pageshow", function(event) {
+            //Important need off here or may fire event multiple times.
+            $.mobile.pageContainer.pagecontainer("load", "./dive_note.html", {});
+
+//            $('#dive_note_update_textarea').height(200);
+//            window.dive_detail_data = window.dive_data[window.dive_detail_index];
+
+//            $('#dive_note_update_textarea').text(window.dive_detail_data.note);
+            $('#dive_note_update_textarea').text((window.dive_detail_data.note === null) ? ("") : (window.dive_detail_data.note));
+
+            $('#dive_note_update_textarea').height($(window).height() - 100);
+            $('#dive_note_update_textarea').width($(window).width());
+
+
+
+            $('#dive_note_update_update_btn').off('click').on('click', function(event) {
+                
+                log(window.api_url + window.update_note_api);
+                var temp_value = CKEDITOR.instances.dive_note_update_textarea.getData();
+                if (temp_value === "") {
+                    temp_value = ' ';
+                }
+//                if ($('#dive_note_update_textarea').val() === "") {
+//                    $('#dive_note_update_textarea').val(' ');
+//                }
+
+                $.ajax({
+                    url: window.api_url + window.update_note_api,
+                    crossDomain: true,
+                    data: {account: window.user_data.account, did: window.dive_detail_data.dive_id, note: temp_value},
+//                    data: {account: window.user_data.account, did: window.dive_detail_data.dive_id, note: $('#dive_note_update_textarea').val()},
+                    dataType: "json",
+                    type: 'POST',
+                    success: function(data) {
+                        if (data.sys_code === "200") {
+//                            log("GOOD");
+                            get_dive_list(function() {
+                                $(":mobile-pagecontainer").pagecontainer("change", "dive_detail.html", {role: "page", transition: "slide", reverse: true});
+                            });
+                        } else {
+                            alert("Fail to Upload");
+                        }
+                    }
+                });
+                return false;
+            });
+            i18n(dive_lang, window.user_data.language);
+            
+//            CKEDITOR.inline('dive_note_update_textarea');
+            CKEDITOR.replace('dive_note_update_textarea');
+        });
+    </script>
+
+    <div data-role="header">
+        <a class="back" href="#dive_note" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class="update_note">筆記修改</h1>
+    </div>
+
+    <div data-role="main">
+        <form>
+            <textarea style="" name="dive_note_update_textarea" id="dive_note_update_textarea" contenteditable="true"></textarea>
+            <!--            <textarea data-role='none' style="" name="dive_note_update_textarea" id="dive_note_update_textarea"></textarea>-->
+        </form>
+    </div>
+
+    <div data-role="footer" data-position="fixed"  data-tap-toggle="false">
+        <a class="upload_note" style="width:96%" href="#" id="dive_note_update_update_btn" data-role="button" data-transition="slide" >上傳</a>
+    </div>
+</div>

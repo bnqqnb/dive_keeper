@@ -1,0 +1,186 @@
+<div data-role="page" id="profile_update"  data-theme="a">
+    <script>
+        $("#profile_update").off("pageshow").on("pageshow", function(event) {
+            //Important need off here or may fire event multiple times.
+            $.mobile.pageContainer.pagecontainer("load", "./index.html", {});
+            $.mobile.pageContainer.pagecontainer("load", "./profile.html", {});
+
+            $('#profile_update_submit').off('click').on('click', function(event) {
+
+                //check if contains bad character.
+
+                function isNumber(n) {
+                    return !isNaN(parseFloat(n)) && isFinite(n);
+                }
+
+                if ($('#profile_update_nick_name').val().match(/[`~!@#\$%\^&\*\(\)\-=_+\\\[\]{}/\?,\.\<\>]+/)) {
+//                    alert('暱稱不可含有特殊字元');
+                    alert(get_lang(window.user_data.language,profile_lang, 'nick_name')+get_lang(window.user_data.language,error_lang, 'symbol_error'));
+                    return false;
+                }
+
+                if ($('#profile_update_first_name').val().match(/[`~!@#\$%\^&\*\(\)\-=_+\\\[\]{}/\?,\.\<\>]+/)) {
+//                    alert('名字不可含有特殊字元');
+                    alert(get_lang(window.user_data.language,profile_lang, 'first_name')+get_lang(window.user_data.language,error_lang, 'symbol_error'));
+                    return false;
+                }
+
+                if ($('#profile_update_last_name').val().match(/[`~!@#\$%\^&\*\(\)\-=_+\\\[\]{}/\?,\.\<\>]+/)) {
+//                    alert('姓氏不可含有特殊字元');
+                    alert(get_lang(window.user_data.language,profile_lang, 'last_name')+get_lang(window.user_data.language,error_lang, 'symbol_error'));
+                    return false;
+                }
+
+                if ($('#profile_update_phone').val().match(/[`~!@#\$%\^&\*\(\)\-=_+\\\[\]{}/\?,\.\<\>]+/)) {
+//                    alert('電話不可含有特殊字元');
+                    alert(get_lang(window.user_data.language,profile_lang, 'phone')+get_lang(window.user_data.language,error_lang, 'symbol_error'));
+                    return false;
+                }
+
+                if ($('#profile_update_number').val().match(/[`~!@#\$%\^&\*\(\)\-=_+\\\[\]{}/\?,\.\<\>]+/)) {
+//                    alert('證照號碼不可含有特殊字元');
+                    alert(get_lang(window.user_data.language,profile_lang, 'number')+get_lang(window.user_data.language,error_lang, 'symbol_error'));
+                    return false;
+                }
+                
+                if($('#profile_update_phone').val() !== ""){
+                    if(!isNumber($('#profile_update_phone').val())){
+//                        alert('電話號碼要是數字');
+                        alert(get_lang(window.user_data.language,profile_lang, 'phone')+get_lang(window.user_data.language,error_lang, 'not_num_error'));
+                        return false;
+                    }
+                }
+
+                if ($('#profile_update_email').val() === "") {
+//                    alert('Email 不可是空值');
+                    alert(get_lang(window.user_data.language,profile_lang, 'email')+get_lang(window.user_data.language,error_lang, 'empty_error'));
+                    return false;
+                } else {
+                    var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                    if (!re.test($('#profile_update_email').val())) {
+//                        alert('Email 格式錯誤');
+                        alert(get_lang(window.user_data.language,profile_lang, 'email')+get_lang(window.user_data.language,error_lang, 'format_error'));
+                        return false;
+                    }
+                }
+
+//                if ($('#profile_update_email').val().match(/[`~!#\$%\^&\*\(\)\-=_+\\\[\]{}/\?,\.\<\>]+/)) {
+//                    alert('電話不可含有特殊字元');
+//                    return false;
+//                }
+
+
+
+
+                $.ajax({
+                    url: window.api_url + window.update_profile_api,
+                    data: $('#profile_update_form').serialize() + "&account=" + window.user_data.account,
+                    dataType: "json",
+                    type: 'POST',
+                    success: function(data) {
+                        log("PROFILE UPDATE API");
+                        log(data);
+
+                        if (data.sys_code === "200") {
+                            //save into window
+                            //save into global
+                            window.user_data = data.data;
+                            localStorage.setItem("user_data", json_obj_to_db(window.user_data));
+                            $(":mobile-pagecontainer").pagecontainer("change", "profile.html", {role: "page", transition: "slide", reverse: true});
+                        }
+                    }
+                });
+                return false;
+            });
+
+//            $.ajax({
+//                url: window.api_url + window.profile_update_api,
+//                crossDomain: true,
+//                dataType: "jsonp",
+//                jsonpCallback: 'callback',
+//                type: 'GET',
+//                jsonp: 'jsonp',
+//                success: function(data) {
+//                    log("取得新聞 (profile_update_array)");
+//                    window.profile_update_array = data.data;
+//                    var profile_update_length = data.data.length;
+//                    $.each(data.data, function(index, value){
+////                        $('#profile_update_list_view').append("<li value='"+index+"'><h1>"+value.subject+"</h1><p class='ui-li-aside'><strong>"+value.date+"</strong></p>"+"</li>");
+//                        $('#profile_update_list_view').append("<li value='"+index+"'><h1>"+value.subject+"</h1><h1>"+value.date+"</h1>"+"</li>");
+//                        
+//                        if(index === profile_update_length -1){
+//                            
+//                            $('#profile_update_list_view li').off('click').on('click',function(event){
+//                                window.clicked_profile_update = event.currentTarget.value;
+//                                $(":mobile-pagecontainer").pagecontainer("change", "profile_update_detail.html", {role: "page", transition: "slide"});
+//                                return false;
+//                            });
+//                            $('#profile_update_list_view').listview('refresh');
+//                        }
+//                    });
+//                }
+//            });
+
+            initialize_profile_update();
+            i18n(profile_lang, window.user_data.language);
+        });
+
+        function initialize_profile_update() {
+            $('#profile_update_nick_name').val(window.user_data.nickname);
+            $('#profile_update_first_name').val(window.user_data.first_name);
+            $('#profile_update_last_name').val(window.user_data.last_name);
+            $('#profile_update_phone').val(window.user_data.phone);
+            $('#profile_update_email').val(window.user_data.email);
+            $('#profile_update_type').val(window.user_data.liscense_type);
+            $('#profile_update_type').selectmenu('refresh');
+            $('#profile_update_number').val(window.user_data.liscense_number);
+            $('#profile_update_language').val(window.user_data.language);
+            $('#profile_update_language').selectmenu('refresh');
+        }
+
+    </script>
+
+    <div data-role="header">
+        <a class='back' href="#profile" data-role="button" data-transition="slide" data-direction="reverse">Back</a>
+        <h1 class='profile_update'>Profile Update</h1>
+    </div>
+
+    <div data-role="main">
+        <div style="width:90%;margin-left:auto;margin-right:auto;">
+            <form id="profile_update_form">
+                <label class="nick_name">nickname</label>
+                <input type="text" name="nickname" id="profile_update_nick_name">
+                <label class="first_name">First Name</label>
+                <input type="text" name="first_name" id="profile_update_first_name">
+                <label class="last_name">Last Nmae</label>
+                <input type="text" name="last_name" id="profile_update_last_name">
+                <label class="phone">Phone</label>
+                <input type="text" name="phone" id="profile_update_phone">
+                <label class="email">Email</label>
+                <input type="text" name="email" id="profile_update_email">
+                <label class="type">Type</label>
+                <!--<input type="text" name="type" id="profile_update_type">-->
+                <select name="liscense_type" id="profile_update_type">
+                    <option value="">...</option>
+                    <option value="PADI">PADI</option>
+                    <option value="ADS">ADS</option>
+                    <option value="NAUI">NAUI</option>
+                    <option value="CMS">CMS</option>
+                    <option value="SSI">SSI</option>
+                    <option value="TDI/SDI">TDI/SDI</option>
+                    <option value="PASI">PASI</option>
+                </select>
+                <label class="number">Number</label>
+                <input type="text" name="liscense_number" id="profile_update_number">
+                <label>Language (語文)</label>
+                <select name="language" id="profile_update_language">
+                    <option value="english">English</option>
+                    <option value="zh-TW">繁體中文</option>
+                    <option value="zh-CN">简体中文</option>
+                </select>
+                <input type="submit" id="profile_update_submit" class="submit" value="SEND">
+                <input type="reset" class="reset" value="CANCEL">
+            </form>
+        </div>
+    </div>
+</div>
